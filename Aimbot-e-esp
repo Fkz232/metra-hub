@@ -1,63 +1,53 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
-rconsoleprint('By Metraton')
-rconsoleprint("Cheat Carregado!")
-rconsoleprint("NÃO FECHE")
-
-rconsoleprint("\n")
-rconsoleprint("")
+rconsoleprint("By Metraton\n")
+rconsoleprint("Project Metra Loaded!")
+rconsoleprint("DONT CLOSE ")
 
 local Window = Rayfield:CreateWindow({
-   Name = "Projeto Metra",
+   Name = "Project Metra",
    LoadingTitle = "",
-   LoadingSubtitle = "por Metraton",
+   LoadingSubtitle = "by Metraton",
    ConfigurationSaving = {
       Enabled = false,
-      FolderName = nil,
-      FileName = "Big Hub"
    },
-   Discord = {
-      Enabled = true,
-      Invite = "",
-      RememberJoins = true
-   },
-   KeySystem = false,
 })
 
 local MainTab = Window:CreateTab("Scripts", nil)
-local MainSection = MainTab:CreateSection("Principal")
+local MainSection = MainTab:CreateSection("Main")
 
-local AimbotTab = Window:CreateTab("Aimbot", nil)
-local AimbotSection = AimbotTab:CreateSection("Aimbot")
-
-AimbotSection:CreateLabel("Aimbot")
-AimbotSection:CreateButton({
-   Name = "Executar Aimbot",
+local InfYieldButton = MainTab:CreateButton({
+   Name = "Inf yeild Admin ",
    Callback = function()
-      loadstring(game:HttpGet("https://pastebin.com/raw/ygp8Enye"))()
-   end
+      loadstring(game:HttpGet(('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'), true))()
+   end,
 })
 
-local EspTab = Window:CreateTab("ESP", nil)
-local EspSection = EspTab:CreateSection("ESP")
+local Slider = MainTab:CreateSlider({
+   Name = "WalkSpeed Slider",
+   Range = {0, 300},
+   Increment = 1,
+   Suffix = "speed",
+   CurrentValue = 16,
+   Flag = "Slider1",
+   Callback = function(Value)
+      game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
+   end,
+})
 
-EspSection:CreateLabel("ESP")
-EspSection:CreateButton({
-   Name = "Ativar ESP",
+local AimbotButton = MainTab:CreateButton({
+   Name = "Aimbot",
    Callback = function()
-      --[[
-         WARNING: Heads up! This script has not been verified by ScriptBlox. Use at your own risk!
-      ]]
-      -- RGB ESP Highlight Script for Solara
+      loadstring(game:HttpGet("https://pastebin.com/raw/ygp8Enye"))()
+   end,
+})
 
-      -- function to create the ESP highlight
+local ESPButton = MainTab:CreateButton({
+   Name = "RGB ESP",
+   Callback = function()
       local function createESP(character)
-          if not character then
-              warn("no worky :(")
-              return
-          end
+          if not character then return end
 
-          -- creates a highlight instance
           local highlight = Instance.new("Highlight")
           highlight.Name = "ESP"
           highlight.Adornee = character
@@ -65,7 +55,6 @@ EspSection:CreateButton({
           highlight.OutlineTransparency = 0.2
           highlight.Parent = game.CoreGui
 
-          -- function to cycle rgb colors
           local function rgbCycle()
               local hue = 0
               while true do
@@ -78,11 +67,9 @@ EspSection:CreateButton({
               end
           end
 
-          -- spawn rgb cycle
           spawn(rgbCycle)
       end
 
-      -- highlight every player in the game (even you)
       local function highlightPlayers()
           for _, player in pairs(game.Players:GetPlayers()) do
               if player.Character then
@@ -91,31 +78,12 @@ EspSection:CreateButton({
           end
       end
 
-      -- highlighting skibidi
       highlightPlayers()
 
-      -- waits for new players joining game
       game.Players.PlayerAdded:Connect(function(player)
           player.CharacterAdded:Connect(function(character)
               createESP(character)
           end)
       end)
-
-      print("script worky :)")
-   end
-})
-
-Rayfield:Notify({
-   Title = "Script executado",
-   Content = "",
-   Duration = 3,
-   Image = nil,
-   Actions = { 
-      Ignore = {
-         Name = "Okay!",
-         Callback = function()
-         print("O usuário clicou em Okay!")
-      end
-   },
-},
+   end,
 })
