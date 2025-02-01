@@ -1,108 +1,121 @@
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local Mouse = LocalPlayer:GetMouse()
-local aimbotEnabled = false
-local espEnabled = false
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
-local function CreateESP(part)
-    local BillboardGui = Instance.new("BillboardGui")
-    BillboardGui.Name = "ESP"
-    BillboardGui.AlwaysOnTop = true
-    BillboardGui.Size = UDim2.new(2, 0, 2, 0)
-    BillboardGui.Adornee = part
-    
-    local Frame = Instance.new("Frame")
-    Frame.Name = "Box"
-    Frame.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-    Frame.BackgroundTransparency = 0.7
-    Frame.BorderSizePixel = 0
-    Frame.Size = UDim2.new(1, 0, 1, 0)
-    Frame.Parent = BillboardGui
-    
-    BillboardGui.Parent = part
-end
+rconsoleprint('By Metraton')
+rconsoleprint("Cheat Carregado!")
+rconsoleprint("NÃO FECHE")
 
-for _, Player in ipairs(Players:GetPlayers()) do
-    if Player ~= LocalPlayer then
-        Player.CharacterAdded:Connect(function(Character)
-            if espEnabled then
-                CreateESP(Character.HumanoidRootPart)
-            end
-        end)
-    end
-end
+rconsoleprint("\n")
+rconsoleprint("")
 
-local aimbotButton = Instance.new("TextButton")
-aimbotButton.Size = UDim2.new(0, 200, 0, 50)
-aimbotButton.Position = UDim2.new(0, 10, 0, 10)
-aimbotButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-aimbotButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-aimbotButton.TextSize = 20
-aimbotButton.Text = "Aimbot: OFF"
-aimbotButton.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+local Window = Rayfield:CreateWindow({
+   Name = "Projeto Metra",
+   LoadingTitle = "",
+   LoadingSubtitle = "por Metraton",
+   ConfigurationSaving = {
+      Enabled = false,
+      FolderName = nil,
+      FileName = "Big Hub"
+   },
+   Discord = {
+      Enabled = true,
+      Invite = "",
+      RememberJoins = true
+   },
+   KeySystem = false,
+})
 
-local function ToggleAimbot()
-    aimbotEnabled = not aimbotEnabled
-    if aimbotEnabled then
-        aimbotButton.Text = "Aimbot: ON"
-        while aimbotEnabled do
-            local NearestPlayer = nil
-            local NearestDistance = math.huge
-            
-            for _, Player in ipairs(Players:GetPlayers()) do
-                if Player ~= LocalPlayer and Player.Character and Player.Character.Humanoid.Health > 0 then
-                    local Distance = (Player.Character.HumanoidRootPart.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
-                    if Distance < NearestDistance then
-                        NearestPlayer = Player
-                        NearestDistance = Distance
-                    end
-                end
-            end
-            
-            if NearestPlayer then
-                local LookVector = (NearestPlayer.Character.HumanoidRootPart.Position - LocalPlayer.Character.HumanoidRootPart.Position).Unit
-                local NewLook = CFrame.new(LocalPlayer.Character.HumanoidRootPart.Position, LocalPlayer.Character.HumanoidRootPart.Position + LookVector)
-                LocalPlayer.Character.HumanoidRootPart.CFrame = NewLook
-            end
-            
-            wait(0.1)
-        end
-    else
-        aimbotButton.Text = "Aimbot: OFF"
-    end
-end
+local MainTab = Window:CreateTab("Scripts", nil)
+local MainSection = MainTab:CreateSection("Principal")
 
-aimbotButton.MouseButton1Click:Connect(ToggleAimbot)
+local AimbotTab = Window:CreateTab("Aimbot", nil)
+local AimbotSection = AimbotTab:CreateSection("Aimbot")
 
-local espButton = Instance.new("TextButton")
-espButton.Size = UDim2.new(0, 200, 0, 50)
-espButton.Position = UDim2.new(0, 10, 0, 70)
-espButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-espButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-espButton.TextSize = 20
-espButton.Text = "ESP: OFF"
-espButton.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+AimbotSection:CreateLabel("Aimbot")
+AimbotSection:CreateButton({
+   Name = "Executar Aimbot",
+   Callback = function()
+      loadstring(game:HttpGet("https://pastebin.com/raw/ygp8Enye"))()
+   end
+})
 
-local function ToggleESP()
-    espEnabled = not espEnabled
-    if espEnabled then
-        espButton.Text = "ESP: ON"
-        for _, Player in ipairs(Players:GetPlayers()) do
-            if Player ~= LocalPlayer and Player.Character then
-                CreateESP(Player.Character.HumanoidRootPart)
-            end
-        end
-    else
-        espButton.Text = "ESP: OFF"
-        for _, Player in ipairs(Players:GetPlayers()) do
-            if Player.Character then
-                local esp = Player.Character:FindFirstChild("ESP")
-                if esp then
-                    esp:Destroy()
-                end
-            end
-        end
-    end
-end
+local EspTab = Window:CreateTab("ESP", nil)
+local EspSection = EspTab:CreateSection("ESP")
 
-espButton.MouseButton1Click:Connect(ToggleESP)
+EspSection:CreateLabel("ESP")
+EspSection:CreateButton({
+   Name = "Ativar ESP",
+   Callback = function()
+      --[[
+         WARNING: Heads up! This script has not been verified by ScriptBlox. Use at your own risk!
+      ]]
+      -- RGB ESP Highlight Script for Solara
+
+      -- function to create the ESP highlight
+      local function createESP(character)
+          if not character then
+              warn("no worky :(")
+              return
+          end
+
+          -- creates a highlight instance
+          local highlight = Instance.new("Highlight")
+          highlight.Name = "ESP"
+          highlight.Adornee = character
+          highlight.FillTransparency = 0.5
+          highlight.OutlineTransparency = 0.2
+          highlight.Parent = game.CoreGui
+
+          -- function to cycle rgb colors
+          local function rgbCycle()
+              local hue = 0
+              while true do
+                  hue = hue + 1
+                  if hue > 360 then hue = 0 end
+                  local color = Color3.fromHSV(hue / 360, 1, 1)
+                  highlight.FillColor = color
+                  highlight.OutlineColor = color
+                  wait(0.1)
+              end
+          end
+
+          -- spawn rgb cycle
+          spawn(rgbCycle)
+      end
+
+      -- highlight every player in the game (even you)
+      local function highlightPlayers()
+          for _, player in pairs(game.Players:GetPlayers()) do
+              if player.Character then
+                  createESP(player.Character)
+              end
+          end
+      end
+
+      -- highlighting skibidi
+      highlightPlayers()
+
+      -- waits for new players joining game
+      game.Players.PlayerAdded:Connect(function(player)
+          player.CharacterAdded:Connect(function(character)
+              createESP(character)
+          end)
+      end)
+
+      print("script worky :)")
+   end
+})
+
+Rayfield:Notify({
+   Title = "Script executado",
+   Content = "",
+   Duration = 3,
+   Image = nil,
+   Actions = { 
+      Ignore = {
+         Name = "Okay!",
+         Callback = function()
+         print("O usuário clicou em Okay!")
+      end
+   },
+},
+})
