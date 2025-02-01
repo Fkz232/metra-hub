@@ -1,33 +1,33 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
-rconsoleprint("By Metraton\n")
-rconsoleprint("Project Metra Loaded!")
-rconsoleprint("DONT CLOSE ")
+rconsoleprint("Por Metraton\n")
+rconsoleprint("Project Metra Carregado!")
+rconsoleprint("NÃO FECHAR ")
 
-local Window = Rayfield:CreateWindow({
+local Janela = Rayfield:CreateWindow({
    Name = "Project Metra",
    LoadingTitle = "",
-   LoadingSubtitle = "by Metraton",
+   LoadingSubtitle = "por Metraton",
    ConfigurationSaving = {
       Enabled = false,
    },
 })
 
-local MainTab = Window:CreateTab("Scripts", nil)
-local MainSection = MainTab:CreateSection("Main")
+local AbaPrincipal = Janela:CreateTab("Scripts", nil)
+local SeçãoPrincipal = AbaPrincipal:CreateSection("Principal")
 
-local InfYieldButton = MainTab:CreateButton({
+local BotãoInfYield = AbaPrincipal:CreateButton({
    Name = "Infinite Yield",
    Callback = function()
       loadstring(game:HttpGet(('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'), true))()
    end,
 })
 
-local Slider = MainTab:CreateSlider({
+local Slider = AbaPrincipal:CreateSlider({
    Name = "Velocidade",
    Range = {0, 10000},
    Increment = 1,
-   Suffix = "speed",
+   Suffix = "velocidade",
    CurrentValue = 16,
    Flag = "Slider1",
    Callback = function(Value)
@@ -35,64 +35,64 @@ local Slider = MainTab:CreateSlider({
    end,
 })
 
-local AimbotButton = MainTab:CreateButton({
+local BotãoAimbot = AbaPrincipal:CreateButton({
    Name = "Aimbot",
    Callback = function()
       local ScreenGui = Instance.new("ScreenGui")
       ScreenGui.Parent = game.CoreGui
 
-      local AnimationFrame = Instance.new("Frame")
-      AnimationFrame.Parent = ScreenGui
-      AnimationFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-      AnimationFrame.Size = UDim2.new(1, 0, 1, 0)
-      AnimationFrame.BackgroundTransparency = 1
+      local FrameAnimacao = Instance.new("Frame")
+      FrameAnimacao.Parent = ScreenGui
+      FrameAnimacao.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+      FrameAnimacao.Size = UDim2.new(1, 0, 1, 0)
+      FrameAnimacao.BackgroundTransparency = 1
 
-      local AnimationLabel = Instance.new("TextLabel")
-      AnimationLabel.Parent = AnimationFrame
-      AnimationLabel.Text = "Carregando..."
-      AnimationLabel.Size = UDim2.new(1, 0, 0.8, 0)
-      AnimationLabel.TextColor3 = Color3.fromRGB(0, 0, 0)
-      AnimationLabel.Font = Enum.Font.GothamBlack
-      AnimationLabel.TextScaled = true
-      AnimationLabel.BackgroundTransparency = 1
-      AnimationLabel.TextStrokeTransparency = 0
-      AnimationLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+      local LabelAnimacao = Instance.new("TextLabel")
+      LabelAnimacao.Parent = FrameAnimacao
+      LabelAnimacao.Text = "Carregando..."
+      LabelAnimacao.Size = UDim2.new(1, 0, 0.8, 0)
+      LabelAnimacao.TextColor3 = Color3.fromRGB(0, 0, 0)
+      LabelAnimacao.Font = Enum.Font.GothamBlack
+      LabelAnimacao.TextScaled = true
+      LabelAnimacao.BackgroundTransparency = 1
+      LabelAnimacao.TextStrokeTransparency = 0
+      LabelAnimacao.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
 
-      local GlowingEffect = Instance.new("UIGradient")
-      GlowingEffect.Parent = AnimationLabel
-      GlowingEffect.Color = ColorSequence.new{
+      local EfeitoBrilho = Instance.new("UIGradient")
+      EfeitoBrilho.Parent = LabelAnimacao
+      EfeitoBrilho.Color = ColorSequence.new{
           ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
           ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 255, 0)),
           ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 0))
       }
-      GlowingEffect.Rotation = 90
+      EfeitoBrilho.Rotation = 90
 
-      local Sound = Instance.new("Sound")
-      Sound.Parent = ScreenGui
-      Sound.SoundId = "rbxassetid://6026984224"
-      Sound.Volume = 3
-      Sound.Looped = true
-      Sound:Play()
+      local Som = Instance.new("Sound")
+      Som.Parent = ScreenGui
+      Som.SoundId = "rbxassetid://6026984224"
+      Som.Volume = 3
+      Som.Looped = true
+      Som:Play()
 
-      local ParticleEmitter = Instance.new("ParticleEmitter", AnimationFrame)
-      ParticleEmitter.Texture = "rbxassetid://8187160402"
-      ParticleEmitter.Speed = NumberRange.new(3, 5)
-      ParticleEmitter.Lifetime = NumberRange.new(3, 6)
-      ParticleEmitter.Rate = 150
-      ParticleEmitter.RotSpeed = NumberRange.new(-360, 360)
+      local EmissorParticulas = Instance.new("ParticleEmitter", FrameAnimacao)
+      EmissorParticulas.Texture = "rbxassetid://8187160402"
+      EmissorParticulas.Speed = NumberRange.new(3, 5)
+      EmissorParticulas.Lifetime = NumberRange.new(3, 6)
+      EmissorParticulas.Rate = 150
+      EmissorParticulas.RotSpeed = NumberRange.new(-360, 360)
 
       wait(3.9)
-      AnimationFrame:Destroy()
-      Sound:Destroy()
+      FrameAnimacao:Destroy()
+      Som:Destroy()
 
       loadstring(game:HttpGet('https://pastebin.com/raw/5rwtLBN1'))()
    end,
 })
 
-local ESPButton = MainTab:CreateButton({
+local BotãoESP = AbaPrincipal:CreateButton({
    Name = "RGB ESP",
    Callback = function()
-      local function createESP(character)
+      local function criarESP(character)
           if not character then return end
 
           local highlight = Instance.new("Highlight")
@@ -102,7 +102,7 @@ local ESPButton = MainTab:CreateButton({
           highlight.OutlineTransparency = 0.2
           highlight.Parent = game.CoreGui
 
-          local function rgbCycle()
+          local function cicloRGB()
               local hue = 0
               while true do
                   hue = hue + 1
@@ -114,31 +114,31 @@ local ESPButton = MainTab:CreateButton({
               end
           end
 
-          spawn(rgbCycle)
+          spawn(cicloRGB)
       end
 
-      local function highlightPlayers()
+      local function destacarJogadores()
           for _, player in pairs(game.Players:GetPlayers()) do
               if player.Character then
-                  createESP(player.Character)
+                  criarESP(player.Character)
               end
           end
       end
 
-      highlightPlayers()
+      destacarJogadores()
 
       game.Players.PlayerAdded:Connect(function(player)
          player.CharacterAdded:Connect(function(character)
-              createESP(character)
+              criarESP(character)
           end)
       end)
    end,
 })
 
-local GhostHubTab = Window:CreateTab("GhostHub", nil)
-local GhostHubSection = GhostHubTab:CreateSection("Main")
+local AbaGhostHub = Janela:CreateTab("GhostHub", nil)
+local SeçãoGhostHub = AbaGhostHub:CreateSection("Principal")
 
-local GhostHubButton = GhostHubTab:CreateButton({
+local BotãoGhostHub = AbaGhostHub:CreateButton({
    Name = "GhostHub",
    Callback = function()
       loadstring(game:HttpGet('https://raw.githubusercontent.com/GhostPlayer352/Test4/main/GhostHub'))()
