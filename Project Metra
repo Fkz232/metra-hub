@@ -24,7 +24,7 @@ local InfYieldButton = MainTab:CreateButton({
 })
 
 local Slider = MainTab:CreateSlider({
-   Name = "Slider de Velocidade",
+   Name = "Velocidade",
    Range = {0, 10000},
    Increment = 1,
    Suffix = "velocidade",
