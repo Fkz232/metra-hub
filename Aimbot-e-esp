@@ -1,3 +1,5 @@
+if not game:IsLoaded() then game.Loaded:Wait() end
+
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
@@ -6,28 +8,28 @@ local LocalPlayer = Players.LocalPlayer
 
 local AimbotEnabled = false
 local ESPEnabled = true
+local ESPObjects = {}
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
-ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = game.CoreGui
 
-local function CreateButton(text, position)
+local function CreateButton(text, position, color)
     local button = Instance.new("TextButton")
     button.Size = UDim2.new(0, 80, 0, 30)
     button.Position = position
     button.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    button.BackgroundTransparency = 0.3
+    button.BackgroundTransparency = 0.2
     button.TextColor3 = Color3.new(1, 1, 1)
     button.Font = Enum.Font.SourceSansBold
     button.TextSize = 18
     button.Text = text
     button.Parent = ScreenGui
-    
+
     local border = Instance.new("UIStroke")
     border.Thickness = 1
     border.Color = Color3.new(1, 1, 1)
     border.Parent = button
-    
+
     return button
 end
 
@@ -35,7 +37,7 @@ local TitleLabel = Instance.new("TextLabel")
 TitleLabel.Size = UDim2.new(0, 150, 0, 30)
 TitleLabel.Position = UDim2.new(0.85, -45, 0.65, 0)
 TitleLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-TitleLabel.BackgroundTransparency = 0.3
+TitleLabel.BackgroundTransparency = 0.2
 TitleLabel.TextColor3 = Color3.new(1, 1, 1)
 TitleLabel.Text = "Metra Project"
 TitleLabel.Font = Enum.Font.SourceSansBold
@@ -47,8 +49,8 @@ border.Thickness = 1
 border.Color = Color3.new(1, 1, 1)
 border.Parent = TitleLabel
 
-local ToggleAimButton = CreateButton("Aim OFF", UDim2.new(0.85, 0, 0.85, 0))
-local ToggleESPButton = CreateButton("ESP ON", UDim2.new(0.85, 0, 0.75, 0))
+local ToggleAimButton = CreateButton("Aim OFF", UDim2.new(0.85, 0, 0.85, 0), Color3.fromRGB(200, 50, 50))
+local ToggleESPButton = CreateButton("ESP ON", UDim2.new(0.85, 0, 0.75, 0), Color3.fromRGB(50, 200, 50))
 
 ToggleAimButton.MouseButton1Click:Connect(function()
     AimbotEnabled = not AimbotEnabled
@@ -60,6 +62,14 @@ ToggleESPButton.MouseButton1Click:Connect(function()
     ESPEnabled = not ESPEnabled
     ToggleESPButton.Text = ESPEnabled and "ESP ON" or "ESP OFF"
     ToggleESPButton.BackgroundColor3 = ESPEnabled and Color3.fromRGB(50, 200, 50) or Color3.fromRGB(200, 50, 50)
+
+    if not ESPEnabled then
+        for _, esp in pairs(ESPObjects) do
+            esp.Frame:Destroy()
+            esp.Line:Destroy()
+        end
+        ESPObjects = {}
+    end
 end)
 
 local function GetClosestEnemy()
@@ -84,6 +94,60 @@ local function GetClosestEnemy()
     return closestEnemy
 end
 
+local function CreateESP(player)
+    local character = player.Character
+    if not character or not character:FindFirstChild("HumanoidRootPart") then return end
+
+    local espFrame = Instance.new("Frame")
+    espFrame.Size = UDim2.new(0, 50, 0, 50)
+    espFrame.BackgroundTransparency = 1
+    espFrame.Parent = ScreenGui
+
+    local border = Instance.new("UIStroke")
+    border.Thickness = 2
+    border.Color = Color3.fromRGB(math.random(255), math.random(255), math.random(255))
+    border.Parent = espFrame
+
+    local line = Instance.new("Frame")
+    line.BackgroundTransparency = 0
+    line.Size = UDim2.new(0, 2, 0, 2)
+    line.BackgroundColor3 = border.Color
+    line.Parent = ScreenGui
+
+    ESPObjects[player] = {Frame = espFrame, Line = line, Color = border.Color}
+end
+
+local function UpdateESP()
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Team ~= LocalPlayer.Team then
+            if not ESPObjects[player] then
+                CreateESP(player)
+            end
+
+            local character = player.Character
+            if character and character:FindFirstChild("HumanoidRootPart") then
+                local enemyPosition, onScreen = Camera:WorldToViewportPoint(character.HumanoidRootPart.Position)
+
+                if onScreen then
+                    local espData = ESPObjects[player]
+                    local frame = espData.Frame
+                    local line = espData.Line
+
+                    frame.Position = UDim2.new(0, enemyPosition.X - 25, 0, enemyPosition.Y - 25)
+                    frame.Size = UDim2.new(0, 50, 0, 50)
+
+                    line.Position = UDim2.new(0, enemyPosition.X, 0, enemyPosition.Y)
+                    line.Size = UDim2.new(0, 2, 0, (enemyPosition - Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)).Magnitude)
+                    line.Rotation = math.deg(math.atan2(enemyPosition.Y - Camera.ViewportSize.Y / 2, enemyPosition.X - Camera.ViewportSize.X / 2))
+                else
+                    ESPObjects[player].Frame.Visible = false
+                    ESPObjects[player].Line.Visible = false
+                end
+            end
+        end
+    end
+end
+
 RunService.RenderStepped:Connect(function()
     if AimbotEnabled then
         local enemy = GetClosestEnemy()
@@ -93,5 +157,9 @@ RunService.RenderStepped:Connect(function()
             local moveDelta = Vector2.new(enemyPosition.X, enemyPosition.Y) - mousePos
             mousemoverel(moveDelta.X, moveDelta.Y)
         end
+    end
+
+    if ESPEnabled then
+        UpdateESP()
     end
 end)
