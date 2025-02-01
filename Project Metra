@@ -24,7 +24,7 @@ local InfYieldButton = MainTab:CreateButton({
 })
 
 local Slider = MainTab:CreateSlider({
-   Name = "Velocidade",
+   Name = "Slider de Velocidade",
    Range = {0, 10000},
    Increment = 1,
    Suffix = "velocidade",
@@ -45,7 +45,7 @@ local AimbotButton = MainTab:CreateButton({
 local ESPButton = MainTab:CreateButton({
    Name = "RGB ESP",
    Callback = function()
-      loadstring(game:HttpGet('https://raw.githubusercontent.com/someone/RGB-ESP/main/script'))()
+      loadstring(game:HttpGet('https://raw.githubusercontent.com/Fkz232/Project-Metra/refs/heads/main/ESP%20RGB'))()
    end,
 })
 
