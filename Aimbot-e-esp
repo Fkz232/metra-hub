@@ -1,8 +1,8 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 rconsoleprint("By Metraton\n")
-rconsoleprint("Project Metra Carregado!")
-rconsoleprint("NÃO FECHE!")
+rconsoleprint("Project Metra Loaded!")
+rconsoleprint("DONT CLOSE ")
 
 local Window = Rayfield:CreateWindow({
    Name = "Project Metra",
@@ -17,15 +17,15 @@ local MainTab = Window:CreateTab("Scripts", nil)
 local MainSection = MainTab:CreateSection("Main")
 
 local InfYieldButton = MainTab:CreateButton({
-   Name = "Inf yeild Admin ",
+   Name = "Infinite Yield",
    Callback = function()
       loadstring(game:HttpGet(('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'), true))()
    end,
 })
 
 local Slider = MainTab:CreateSlider({
-   Name = "WalkSpeed Slider",
-   Range = {0, 300},
+   Name = "Velocidade",
+   Range = {0, 10000},
    Increment = 1,
    Suffix = "speed",
    CurrentValue = 16,
@@ -132,5 +132,15 @@ local ESPButton = MainTab:CreateButton({
               createESP(character)
           end)
       end)
+   end,
+})
+
+local GhostHubTab = Window:CreateTab("GhostHub", nil)
+local GhostHubSection = GhostHubTab:CreateSection("Main")
+
+local GhostHubButton = GhostHubTab:CreateButton({
+   Name = "GhostHub",
+   Callback = function()
+      loadstring(game:HttpGet('https://raw.githubusercontent.com/GhostPlayer352/Test4/main/GhostHub'))()
    end,
 })
