@@ -1,0 +1,178 @@
+local VflyProjectMetra = Instance.new("ScreenGui")
+local Drag = Instance.new("Frame")
+local FlyFrame = Instance.new("Frame")
+local Titulo = Instance.new("TextButton")
+local Speed = Instance.new("TextBox")
+local Fly = Instance.new("TextButton")
+local SpeedLabel = Instance.new("TextLabel")
+local StatusLabel = Instance.new("TextLabel")
+local StatusValor = Instance.new("TextLabel")
+local Unfly = Instance.new("TextButton")
+local Vfly = Instance.new("TextLabel")
+local Fechar = Instance.new("TextButton")
+local Minimizar = Instance.new("TextButton")
+local Flyon = Instance.new("Frame")
+local W = Instance.new("TextButton")
+local S = Instance.new("TextButton")
+
+VflyProjectMetra.Name = "Vfly Project Metra"
+VflyProjectMetra.Parent = game.CoreGui
+VflyProjectMetra.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+Drag.Name = "Drag"
+Drag.Parent = VflyProjectMetra
+Drag.Active = true
+Drag.BackgroundColor3 = Color3.fromRGB(0, 150, 191)
+Drag.BorderSizePixel = 0
+Drag.Draggable = true
+Drag.Position = UDim2.new(0.482, 0, 0.454, 0)
+Drag.Size = UDim2.new(0, 237, 0, 27)
+
+FlyFrame.Name = "FlyFrame"
+FlyFrame.Parent = Drag
+FlyFrame.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+FlyFrame.BorderSizePixel = 0
+FlyFrame.Draggable = true
+FlyFrame.Position = UDim2.new(0, 0, 1, 0)
+FlyFrame.Size = UDim2.new(0, 237, 0, 139)
+
+Titulo.Name = "Titulo"
+Titulo.Parent = FlyFrame
+Titulo.BackgroundColor3 = Color3.fromRGB(0, 150, 191)
+Titulo.BorderSizePixel = 0
+Titulo.Position = UDim2.new(0, 0, 0, 0)
+Titulo.Size = UDim2.new(0, 237, 0, 27)
+Titulo.Font = Enum.Font.SourceSans
+Titulo.Text = "Criado por Warrior Roberr"
+Titulo.TextColor3 = Color3.fromRGB(255, 255, 255)
+Titulo.TextScaled = true
+Titulo.TextWrapped = true
+
+Speed.Name = "Velocidade"
+Speed.Parent = FlyFrame
+Speed.BackgroundColor3 = Color3.fromRGB(63, 63, 63)
+Speed.BorderColor3 = Color3.fromRGB(0, 0, 191)
+Speed.BorderSizePixel = 0
+Speed.Position = UDim2.new(0.445, 0, 0.403, 0)
+Speed.Size = UDim2.new(0, 111, 0, 33)
+Speed.Font = Enum.Font.SourceSans
+Speed.PlaceholderColor3 = Color3.fromRGB(255, 255, 255)
+Speed.Text = "50"
+Speed.TextColor3 = Color3.fromRGB(255, 255, 255)
+Speed.TextScaled = true
+Speed.TextWrapped = true
+
+Fly.Name = "Fly"
+Fly.Parent = FlyFrame
+Fly.BackgroundColor3 = Color3.fromRGB(0, 150, 191)
+Fly.BorderSizePixel = 0
+Fly.Position = UDim2.new(0.076, 0, 0.706, 0)
+Fly.Size = UDim2.new(0, 199, 0, 32)
+Fly.Font = Enum.Font.SourceSans
+Fly.Text = "Ativar Voo"
+Fly.TextColor3 = Color3.fromRGB(255, 255, 255)
+Fly.TextScaled = true
+Fly.TextWrapped = true
+Fly.MouseButton1Click:Connect(function()
+	local HumanoidRP = game.Players.LocalPlayer.Character.HumanoidRootPart
+	Fly.Visible = false
+	StatusValor.Text = "Ativado"
+	StatusValor.TextColor3 = Color3.fromRGB(0, 255, 0)
+	Unfly.Visible = true
+	Flyon.Visible = true
+	local BV = Instance.new("BodyVelocity", HumanoidRP)
+	local BG = Instance.new("BodyGyro", HumanoidRP)
+	BV.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+	game:GetService('RunService').RenderStepped:Connect(function()
+		BG.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+		BG.D = 5000
+		BG.P = 100000
+		BG.CFrame = game.Workspace.CurrentCamera.CFrame
+	end)
+end)
+
+SpeedLabel.Name = "SpeedLabel"
+SpeedLabel.Parent = FlyFrame
+SpeedLabel.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+SpeedLabel.BorderSizePixel = 0
+SpeedLabel.Position = UDim2.new(0.076, 0, 0.403, 0)
+SpeedLabel.Size = UDim2.new(0, 87, 0, 32)
+SpeedLabel.Font = Enum.Font.SourceSans
+SpeedLabel.Text = "Velocidade:"
+SpeedLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+SpeedLabel.TextScaled = true
+SpeedLabel.TextWrapped = true
+
+StatusLabel.Name = "Status"
+StatusLabel.Parent = FlyFrame
+StatusLabel.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+StatusLabel.BorderSizePixel = 0
+StatusLabel.Position = UDim2.new(0.3, 0, 0.24, 0)
+StatusLabel.Size = UDim2.new(0, 85, 0, 15)
+StatusLabel.Font = Enum.Font.SourceSans
+StatusLabel.Text = "Status:"
+StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+StatusLabel.TextScaled = true
+StatusLabel.TextWrapped = true
+
+StatusValor.Name = "StatusValor"
+StatusValor.Parent = FlyFrame
+StatusValor.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+StatusValor.BorderSizePixel = 0
+StatusValor.Position = UDim2.new(0.55, 0, 0.24, 0)
+StatusValor.Size = UDim2.new(0, 27, 0, 15)
+StatusValor.Font = Enum.Font.SourceSans
+StatusValor.Text = "Desativado"
+StatusValor.TextColor3 = Color3.fromRGB(255, 0, 0)
+StatusValor.TextScaled = true
+StatusValor.TextWrapped = true
+
+Unfly.Name = "Unfly"
+Unfly.Parent = FlyFrame
+Unfly.BackgroundColor3 = Color3.fromRGB(0, 150, 191)
+Unfly.BorderSizePixel = 0
+Unfly.Position = UDim2.new(0.076, 0, 0.706, 0)
+Unfly.Size = UDim2.new(0, 199, 0, 32)
+Unfly.Visible = false
+Unfly.Font = Enum.Font.SourceSans
+Unfly.Text = "Desativar Voo"
+Unfly.TextColor3 = Color3.fromRGB(255, 255, 255)
+Unfly.TextScaled = true
+Unfly.TextWrapped = true
+Unfly.MouseButton1Click:Connect(function()
+	local HumanoidRP = game.Players.LocalPlayer.Character.HumanoidRootPart
+	Fly.Visible = true
+	StatusValor.Text = "Desativado"
+	StatusValor.TextColor3 = Color3.fromRGB(255, 0, 0)
+	wait()
+	Unfly.Visible = false
+	Flyon.Visible = false
+	HumanoidRP:FindFirstChildOfClass("BodyVelocity"):Destroy()
+	HumanoidRP:FindFirstChildOfClass("BodyGyro"):Destroy()
+end)
+
+Vfly.Name = "Vfly"
+Vfly.Parent = Drag
+Vfly.BackgroundColor3 = Color3.fromRGB(0, 150, 191)
+Vfly.BorderSizePixel = 0
+Vfly.Size = UDim2.new(0, 57, 0, 27)
+Vfly.Font = Enum.Font.SourceSans
+Vfly.Text = "Vfly Project Metra"
+Vfly.TextColor3 = Color3.fromRGB(255, 255, 255)
+Vfly.TextScaled = true
+Vfly.TextWrapped = true
+
+Fechar.Name = "Fechar"
+Fechar.Parent = Drag
+Fechar.BackgroundColor3 = Color3.fromRGB(0, 150, 191)
+Fechar.BorderSizePixel = 0
+Fechar.Position = UDim2.new(0.875, 0, 0, 0)
+Fechar.Size = UDim2.new(0, 27, 0, 27)
+Fechar.Font = Enum.Font.SourceSans
+Fechar.Text = "X"
+Fechar.TextColor3 = Color3.fromRGB(255, 255, 255)
+Fechar.TextScaled = true
+Fechar.TextWrapped = true
+Fechar.MouseButton1Click:Connect(function()
+	VflyProjectMetra:Destroy()
+end)
