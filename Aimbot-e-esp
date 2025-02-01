@@ -1,8 +1,8 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 rconsoleprint("By Metraton\n")
-rconsoleprint("Project Metra Loaded!")
-rconsoleprint("DONT CLOSE ")
+rconsoleprint("Project Metra Carregado!")
+rconsoleprint("NÃO FECHE!")
 
 local Window = Rayfield:CreateWindow({
    Name = "Project Metra",
@@ -38,7 +38,54 @@ local Slider = MainTab:CreateSlider({
 local AimbotButton = MainTab:CreateButton({
    Name = "Aimbot",
    Callback = function()
-      loadstring(game:HttpGet("https://pastebin.com/raw/ygp8Enye"))()
+      local ScreenGui = Instance.new("ScreenGui")
+      ScreenGui.Parent = game.CoreGui
+
+      local AnimationFrame = Instance.new("Frame")
+      AnimationFrame.Parent = ScreenGui
+      AnimationFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+      AnimationFrame.Size = UDim2.new(1, 0, 1, 0)
+      AnimationFrame.BackgroundTransparency = 1
+
+      local AnimationLabel = Instance.new("TextLabel")
+      AnimationLabel.Parent = AnimationFrame
+      AnimationLabel.Text = "Carregando..."
+      AnimationLabel.Size = UDim2.new(1, 0, 0.8, 0)
+      AnimationLabel.TextColor3 = Color3.fromRGB(0, 0, 0)
+      AnimationLabel.Font = Enum.Font.GothamBlack
+      AnimationLabel.TextScaled = true
+      AnimationLabel.BackgroundTransparency = 1
+      AnimationLabel.TextStrokeTransparency = 0
+      AnimationLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+
+      local GlowingEffect = Instance.new("UIGradient")
+      GlowingEffect.Parent = AnimationLabel
+      GlowingEffect.Color = ColorSequence.new{
+          ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
+          ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 255, 0)),
+          ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 0))
+      }
+      GlowingEffect.Rotation = 90
+
+      local Sound = Instance.new("Sound")
+      Sound.Parent = ScreenGui
+      Sound.SoundId = "rbxassetid://6026984224"
+      Sound.Volume = 3
+      Sound.Looped = true
+      Sound:Play()
+
+      local ParticleEmitter = Instance.new("ParticleEmitter", AnimationFrame)
+      ParticleEmitter.Texture = "rbxassetid://8187160402"
+      ParticleEmitter.Speed = NumberRange.new(3, 5)
+      ParticleEmitter.Lifetime = NumberRange.new(3, 6)
+      ParticleEmitter.Rate = 150
+      ParticleEmitter.RotSpeed = NumberRange.new(-360, 360)
+
+      wait(3.9)
+      AnimationFrame:Destroy()
+      Sound:Destroy()
+
+      loadstring(game:HttpGet('https://pastebin.com/raw/5rwtLBN1'))()
    end,
 })
 
@@ -81,7 +128,7 @@ local ESPButton = MainTab:CreateButton({
       highlightPlayers()
 
       game.Players.PlayerAdded:Connect(function(player)
-          player.CharacterAdded:Connect(function(character)
+         player.CharacterAdded:Connect(function(character)
               createESP(character)
           end)
       end)
