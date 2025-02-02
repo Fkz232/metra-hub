@@ -16,6 +16,8 @@ local Window = Rayfield:CreateWindow({
 local MainTab = Window:CreateTab("Scripts", nil)
 local MainSection = MainTab:CreateSection("Principal")
 
+local ScrollFrame = MainTab:CreateSection("Funções", true)
+
 local InfYieldButton = MainTab:CreateButton({
    Name = "Infinite Yield",
    Callback = function()
@@ -83,5 +85,12 @@ local VflyButton = MainTab:CreateButton({
    Name = "Vfly",
    Callback = function()
       loadstring(game:HttpGet('https://raw.githubusercontent.com/Fkz232/Project-Metra/refs/heads/main/Vfly%20Project%20Metra'))()
+   end,
+})
+
+local EnergizeButton = MainTab:CreateButton({
+   Name = "Energize",
+   Callback = function()
+      loadstring(game:HttpGet('https://raw.githubusercontent.com/IlikeyocutgHAH12/FEEGGEG/refs/heads/main/%5BFE%5D%20Energize%20Animation%20Gui.txt'))()
    end,
 })
