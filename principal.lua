@@ -74,25 +74,11 @@ local BotaoEnergize = AbaScripts:CreateButton({
    end,
 })
 
-local function ativarPuloInfinito()
-    _G.infinjump = true
-    local plr = game:GetService('Players').LocalPlayer
-    local m = plr:GetMouse()
-    m.KeyDown:connect(function(k)
-        if _G.infinjump then
-            if k:byte() == 32 then
-                local humanoide = game:GetService('Players').LocalPlayer.Character:FindFirstChildOfClass('Humanoid')
-                humanoide:ChangeState('Jumping')
-                wait()
-                humanoide:ChangeState('Seated')
-            end
-        end
-    end)
-end
-
 local BotaoPuloInfinito = AbaScripts:CreateButton({
    Name = "Pulo Infinito",
-   Callback = ativarPuloInfinito
+   Callback = function()
+      loadstring(game:HttpGet('https://raw.githubusercontent.com/Fkz232/Project-Metra/refs/heads/main/Infjump.lua'))()
+   end,
 })
 
 local SecaoAbracos = AbaAbracos:CreateSection("Abraços", true)
