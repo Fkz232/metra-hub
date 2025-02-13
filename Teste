@@ -1,0 +1,81 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+-- Verificando se Rayfield foi carregado corretamente
+if not Rayfield then
+    warn("Falha ao carregar Rayfield!")
+    return
+end
+
+rconsoleprint("Por Metraton\n")
+rconsoleprint("Project Metra Carregado!")
+rconsoleprint("NÃO FECHE ")
+
+local Window = Rayfield:CreateWindow({
+   Name = "Project Metra",
+   LoadingTitle = "",
+   LoadingSubtitle = "por Metraton",
+   ConfigurationSaving = {
+      Enabled = false,
+   },
+})
+
+local MainTab = Window:CreateTab("Scripts", nil)
+local MainSection = MainTab:CreateSection("Principal")
+
+local ScrollFrame = MainTab:CreateSection("Funções", true)
+
+local InfYieldButton = MainTab:CreateButton({
+   Name = "Infinite Yield",
+   Callback = function()
+      loadstring(game:HttpGet(('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'), true))()
+   end,
+})
+
+local Slider = MainTab:CreateSlider({
+   Name = "Velocidade",
+   Range = {0, 10000},
+   Increment = 1,
+   Suffix = "velocidade",
+   CurrentValue = 16,
+   Flag = "Slider1",
+   Callback = function(Value)
+      game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
+   end,
+})
+
+local AimbotButton = MainTab:CreateButton({
+   Name = "Aimbot",
+   Callback = function()
+      loadstring(game:HttpGet('https://pastebin.com/raw/5rwtLBN1'))()
+   end,
+})
+
+local ESPButton = MainTab:CreateButton({
+   Name = "RGB ESP",
+   Callback = function()
+      loadstring(game:HttpGet('https://raw.githubusercontent.com/Fkz232/Project-Metra/refs/heads/main/ESP%20RGB'))()
+   end,
+})
+
+local GhostHubTab = Window:CreateTab("GhostHub", nil)
+
+local GhostHubButton = GhostHubTab:CreateButton({
+   Name = "GhostHub",
+   Callback = function()
+      loadstring(game:HttpGet('https://raw.githubusercontent.com/GhostPlayer352/Test4/main/GhostHub'))()
+   end,
+})
+
+local VflyButton = MainTab:CreateButton({
+   Name = "Vfly",
+   Callback = function()
+      local status, err = pcall(function()
+         loadstring(game:HttpGet('https://raw.githubusercontent.com/GhostPlayer352/Test4/main/Vehicle%20Fly%20Gui'))()
+      end)
+      if not status then
+         warn("Erro ao executar Vfly: " .. err)
+      end
+   end,
+})
+
+-- Restante do código (continuar como está)
