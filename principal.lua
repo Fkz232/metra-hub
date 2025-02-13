@@ -75,19 +75,19 @@ local BotaoEnergize = AbaScripts:CreateButton({
 })
 
 local function ativarPuloInfinito()
-    local jogador = game.Players.LocalPlayer
-    local personagem = jogador.Character or jogador.CharacterAdded:Wait()
-    local humanoide = personagem:WaitForChild("Humanoid")
-
-    humanoide:GetPropertyChangedSignal("Jumping"):Connect(function()
-        if humanoide:GetState() == Enum.HumanoidStateType.Physics then
-            humanoide:ChangeState(Enum.HumanoidStateType.Seated)
-            humanoide:ChangeState(Enum.HumanoidStateType.Physics)
+    _G.infinjump = true
+    local plr = game:GetService('Players').LocalPlayer
+    local m = plr:GetMouse()
+    m.KeyDown:connect(function(k)
+        if _G.infinjump then
+            if k:byte() == 32 then
+                local humanoide = game:GetService('Players').LocalPlayer.Character:FindFirstChildOfClass('Humanoid')
+                humanoide:ChangeState('Jumping')
+                wait()
+                humanoide:ChangeState('Seated')
+            end
         end
     end)
-
-    humanoide.JumpPower = 100
-    humanoide.MaxSlopeAngle = 90
 end
 
 local BotaoPuloInfinito = AbaScripts:CreateButton({
