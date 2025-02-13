@@ -21,6 +21,8 @@ local Window = Rayfield:CreateWindow({
 local AbaScripts = Window:CreateTab("Scripts", nil)
 local AbaAbracos = Window:CreateTab("Abraços", nil)
 local AbaDesastresNaturais = Window:CreateTab("Desastres Naturais", nil)
+local AbaEmotes = Window:CreateTab("Emotes", nil)
+local AbaGhostHub = Window:CreateTab("GhostHub", nil)
 
 local SecaoPrincipal = AbaScripts:CreateSection("Principal")
 local SecaoFuncoes = AbaScripts:CreateSection("Funções", true)
@@ -94,6 +96,24 @@ local BotaoSuperRingV6 = AbaDesastresNaturais:CreateButton({
    Name = "Super Ring V6",
    Callback = function()
       loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Super-ring-Parts-V6-28581"))()
+   end,
+})
+
+local SecaoEmotes = AbaEmotes:CreateSection("Emotes", true)
+
+local BotaoEmotesR15 = AbaEmotes:CreateButton({
+   Name = "Emotes R15",
+   Callback = function()
+      loadstring(game:HttpGetAsync("https://gist.githubusercontent.com/RedZenXYZ/3da6af1961efa275de6c3c2a6dbace03/raw/bb027f99cec0ea48ef9c5eabfb9116ddff20633d/FE%2520Emotes%2520Gui"))()
+   end,
+})
+
+local SecaoGhostHub = AbaGhostHub:CreateSection("Funções", true)
+
+local BotaoGhostHub = AbaGhostHub:CreateButton({
+   Name = "GhostHub",
+   Callback = function()
+      loadstring(game:HttpGet('https://raw.githubusercontent.com/GhostPlayer352/Test4/main/GhostHub'))()
    end,
 })
 
