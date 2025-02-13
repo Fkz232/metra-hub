@@ -1,0 +1,135 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+rconsoleprint("Por Metraton\n")
+rconsoleprint("Project Metra Carregado!")
+rconsoleprint("NÃO FECHE ")
+
+local Window = Rayfield:CreateWindow({
+   Name = "Project Metra",
+   LoadingTitle = "",
+   LoadingSubtitle = "por Metraton",
+   ConfigurationSaving = {
+      Enabled = false,
+   },
+})
+
+local MainTab = Window:CreateTab("Scripts", nil)
+local MainSection = MainTab:CreateSection("Principal")
+
+local ScrollFrame = MainTab:CreateSection("Funções", true)
+
+local InfYieldButton = MainTab:CreateButton({
+   Name = "Infinite Yield",
+   Callback = function()
+      loadstring(game:HttpGet(('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'), true))()
+   end,
+})
+
+local Slider = MainTab:CreateSlider({
+   Name = "Velocidade",
+   Range = {0, 10000},
+   Increment = 1,
+   Suffix = "velocidade",
+   CurrentValue = 16,
+   Flag = "Slider1",
+   Callback = function(Value)
+      game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
+   end,
+})
+
+local AimbotButton = MainTab:CreateButton({
+   Name = "Aimbot",
+   Callback = function()
+      loadstring(game:HttpGet('https://pastebin.com/raw/5rwtLBN1'))()
+   end,
+})
+
+local ESPButton = MainTab:CreateButton({
+   Name = "RGB ESP",
+   Callback = function()
+      loadstring(game:HttpGet('https://raw.githubusercontent.com/Fkz232/Project-Metra/refs/heads/main/ESP%20RGB'))()
+   end,
+})
+
+local GhostHubTab = Window:CreateTab("GhostHub", nil)
+
+local GhostHubButton = GhostHubTab:CreateButton({
+   Name = "GhostHub",
+   Callback = function()
+      loadstring(game:HttpGet('https://raw.githubusercontent.com/GhostPlayer352/Test4/main/GhostHub'))()
+   end,
+})
+
+local AbraçosTab = Window:CreateTab("Abraços", nil)
+
+local Abraços1R6Button = AbraçosTab:CreateButton({
+   Name = "Abraços 1 R6",
+   Callback = function()
+      loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Hug-Gui-R6-17818"))()
+   end,
+})
+
+local Abraços2R6Button = AbraçosTab:CreateButton({
+   Name = "Abraços 2 R6",
+   Callback = function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/JSFKGBASDJKHIOAFHDGHIUODSGBJKLFGDKSB/fe/refs/heads/main/FEHUGG"))()
+   end,
+})
+
+local DisasterNaturalTab = Window:CreateTab("Disaster Natural", nil)
+
+local Troll1PlayerButton = DisasterNaturalTab:CreateButton({
+   Name = "Troll 1 player",
+   Callback = function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/Bac0nHck/Scripts/main/BringFlingPlayers"))("More Scripts: t.me/arceusxscripts")
+   end,
+})
+
+local SuperRingV6Button = DisasterNaturalTab:CreateButton({
+   Name = "Super Ring V6",
+   Callback = function()
+      loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Super-ring-Parts-V6-28581"))()
+   end,
+})
+
+local VflyButton = MainTab:CreateButton({
+   Name = "Vfly",
+   Callback = function()
+      loadstring(game:HttpGet('https://raw.githubusercontent.com/GhostPlayer352/Test4/main/Vehicle%20Fly%20Gui'))()
+   end,
+})
+
+local JerkR6Button = MainTab:CreateButton({
+   Name = "Jerk R6",
+   Callback = function()
+      loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-jerk-off-25958"))()
+   end,
+})
+
+local JerkR15Button = MainTab:CreateButton({
+   Name = "Jerk R15",
+   Callback = function()
+      loadstring(game:HttpGet("https://pastefy.app/YZoglOyJ/raw"))()
+   end,
+})
+
+local ReverseButton = MainTab:CreateButton({
+   Name = "Reverse",
+   Callback = function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/Fkz232/Aimbot-e-esp/refs/heads/main/Reverse"))()
+   end,
+})
+
+local EmotesButton = MainTab:CreateButton({
+   Name = "Emotes",
+   Callback = function()
+      loadstring(game:HttpGet(('https://gist.githubusercontent.com/RedZenXYZ/3da6af1961efa275de6c3c2a6dbace03/raw/bb027f99cec0ea48ef9c5eabfb9116ddff20633d/FE%2520Emotes%2520Gui'),true))()
+   end,
+})
+
+local EnergizeButton = MainTab:CreateButton({
+   Name = "Energize",
+   Callback = function()
+      loadstring(game:HttpGet('https://raw.githubusercontent.com/IlikeyocutgHAH12/FEEGGEG/refs/heads/main/%5BFE%5D%20Energize%20Animation%20Gui.txt'))()
+   end,
+})
