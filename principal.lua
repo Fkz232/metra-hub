@@ -18,19 +18,16 @@ local Window = Rayfield:CreateWindow({
    },
 })
 
+-- Aba Principal
 local AbaPrincipal = Window:CreateTab("Principal", nil)
-local AbaScripts = Window:CreateTab("Scripts", nil)
-local AbaAbracos = Window:CreateTab("Abraços", nil)
-local AbaDesastresNaturais = Window:CreateTab("Desastres Naturais", nil)
-local AbaEmotes = Window:CreateTab("Emotes", nil)
-local AbaGhostHub = Window:CreateTab("GhostHub", nil)
-
 local SecaoBoasVindas = AbaPrincipal:CreateSection("Boas-Vindas")
 SecaoBoasVindas:CreateParagraph({
    Title = "Project Metra",
    Content = "Um projeto criado por Metraton, cheio de funcionalidades!"
 })
 
+-- Aba Scripts
+local AbaScripts = Window:CreateTab("Scripts", nil)
 local SecaoFuncoes = AbaScripts:CreateSection("Funções", true)
 
 local BotaoInfiniteYield = AbaScripts:CreateButton({
@@ -56,11 +53,15 @@ local BotaoInfJump = AbaScripts:CreateButton({
    Name = "Pulo Infinito",
    Callback = function()
       local UserInputService = game:GetService("UserInputService")
-      local JumpEnabled = true
+      local player = game.Players.LocalPlayer
+      local jumping = false
+      
       UserInputService.JumpRequest:Connect(function()
-         if JumpEnabled then
-            game.Players.LocalPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-         end
+         if jumping then return end
+         jumping = true
+         player.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+         task.wait(0.1)
+         jumping = false
       end)
    end,
 })
@@ -93,6 +94,8 @@ local BotaoEnergize = AbaScripts:CreateButton({
    end,
 })
 
+-- Aba Abraços
+local AbaAbracos = Window:CreateTab("Abraços", nil)
 local SecaoAbracos = AbaAbracos:CreateSection("Abraços", true)
 
 local BotaoAbraco1R6 = AbaAbracos:CreateButton({
@@ -109,6 +112,8 @@ local BotaoAbraco2R6 = AbaAbracos:CreateButton({
    end,
 })
 
+-- Aba Desastres Naturais
+local AbaDesastresNaturais = Window:CreateTab("Desastres Naturais", nil)
 local SecaoDesastres = AbaDesastresNaturais:CreateSection("Funções", true)
 
 local BotaoTroll1Player = AbaDesastresNaturais:CreateButton({
@@ -125,6 +130,8 @@ local BotaoSuperRingV6 = AbaDesastresNaturais:CreateButton({
    end,
 })
 
+-- Aba Emotes
+local AbaEmotes = Window:CreateTab("Emotes", nil)
 local SecaoEmotes = AbaEmotes:CreateSection("Emotes", true)
 
 local BotaoEmotesR15 = AbaEmotes:CreateButton({
@@ -134,6 +141,8 @@ local BotaoEmotesR15 = AbaEmotes:CreateButton({
    end,
 })
 
+-- Aba GhostHub
+local AbaGhostHub = Window:CreateTab("GhostHub", nil)
 local SecaoGhostHub = AbaGhostHub:CreateSection("Funções", true)
 
 local BotaoGhostHub = AbaGhostHub:CreateButton({
