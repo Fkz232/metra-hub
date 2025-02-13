@@ -18,13 +18,19 @@ local Window = Rayfield:CreateWindow({
    },
 })
 
+local AbaPrincipal = Window:CreateTab("Principal", nil)
 local AbaScripts = Window:CreateTab("Scripts", nil)
 local AbaAbracos = Window:CreateTab("Abraços", nil)
 local AbaDesastresNaturais = Window:CreateTab("Desastres Naturais", nil)
 local AbaEmotes = Window:CreateTab("Emotes", nil)
 local AbaGhostHub = Window:CreateTab("GhostHub", nil)
 
-local SecaoPrincipal = AbaScripts:CreateSection("Principal")
+local SecaoBoasVindas = AbaPrincipal:CreateSection("Boas-Vindas")
+SecaoBoasVindas:CreateParagraph({
+   Title = "Project Metra",
+   Content = "Um projeto criado por Metraton, cheio de funcionalidades!"
+})
+
 local SecaoFuncoes = AbaScripts:CreateSection("Funções", true)
 
 local BotaoInfiniteYield = AbaScripts:CreateButton({
@@ -43,6 +49,19 @@ local SliderVelocidade = AbaScripts:CreateSlider({
    Flag = "Slider1",
    Callback = function(Value)
       game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
+   end,
+})
+
+local BotaoInfJump = AbaScripts:CreateButton({
+   Name = "Pulo Infinito",
+   Callback = function()
+      local UserInputService = game:GetService("UserInputService")
+      local JumpEnabled = true
+      UserInputService.JumpRequest:Connect(function()
+         if JumpEnabled then
+            game.Players.LocalPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+         end
+      end)
    end,
 })
 
