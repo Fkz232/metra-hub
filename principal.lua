@@ -18,19 +18,13 @@ local Window = Rayfield:CreateWindow({
    },
 })
 
-local AbaPrincipal = Window:CreateTab("Principal", nil)
 local AbaScripts = Window:CreateTab("Scripts", nil)
 local AbaAbracos = Window:CreateTab("Abraços", nil)
 local AbaDesastresNaturais = Window:CreateTab("Desastres Naturais", nil)
 local AbaEmotes = Window:CreateTab("Emotes", nil)
 local AbaGhostHub = Window:CreateTab("GhostHub", nil)
 
-local SecaoBoasVindas = AbaPrincipal:CreateSection("Boas-Vindas")
-SecaoBoasVindas:CreateParagraph({
-   Title = "Project Metra",
-   Content = "Um projeto criado por Metraton, cheio de funcionalidades!"
-})
-
+local SecaoPrincipal = AbaScripts:CreateSection("Principal")
 local SecaoFuncoes = AbaScripts:CreateSection("Funções", true)
 
 local BotaoInfiniteYield = AbaScripts:CreateButton({
@@ -80,13 +74,23 @@ local BotaoEnergize = AbaScripts:CreateButton({
    end,
 })
 
-local BotaoInfJump = AbaScripts:CreateButton({
-   Name = "Infinite Jump",
-   Callback = function()
-      game:GetService("UserInputService").JumpRequest:Connect(function()
-         game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
-      end)
-   end,
+local function ativarPuloInfinito()
+    local jogador = game.Players.LocalPlayer
+    local personagem = jogador.Character or jogador.CharacterAdded:Wait()
+    local humanoide = personagem:WaitForChild("Humanoid")
+
+    humanoide.JumpPower = 100
+
+    humanoide:GetPropertyChangedSignal("FloorMaterial"):Connect(function()
+        if humanoide:GetState() == Enum.HumanoidStateType.Physics then
+            humanoide:ChangeState(Enum.HumanoidStateType.Seated)
+        end
+    end)
+end
+
+local BotaoPuloInfinito = AbaScripts:CreateButton({
+   Name = "Pulo Infinito",
+   Callback = ativarPuloInfinito
 })
 
 local SecaoAbracos = AbaAbracos:CreateSection("Abraços", true)
