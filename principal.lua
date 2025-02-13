@@ -67,6 +67,13 @@ local BotaoVfly = AbaScripts:CreateButton({
    end,
 })
 
+local BotaoEnergize = AbaScripts:CreateButton({
+   Name = "Energize",
+   Callback = function()
+      loadstring(game:HttpGet(('https://pastebin.com/raw/PQfaN03z'),true))()
+   end,
+})
+
 local SecaoAbracos = AbaAbracos:CreateSection("Abraços", true)
 
 local BotaoAbraco1R6 = AbaAbracos:CreateButton({
