@@ -79,13 +79,15 @@ local function ativarPuloInfinito()
     local personagem = jogador.Character or jogador.CharacterAdded:Wait()
     local humanoide = personagem:WaitForChild("Humanoid")
 
-    humanoide.JumpPower = 100
-
-    humanoide:GetPropertyChangedSignal("FloorMaterial"):Connect(function()
+    humanoide:GetPropertyChangedSignal("Jumping"):Connect(function()
         if humanoide:GetState() == Enum.HumanoidStateType.Physics then
             humanoide:ChangeState(Enum.HumanoidStateType.Seated)
+            humanoide:ChangeState(Enum.HumanoidStateType.Physics)
         end
     end)
+
+    humanoide.JumpPower = 100
+    humanoide.MaxSlopeAngle = 90
 end
 
 local BotaoPuloInfinito = AbaScripts:CreateButton({
