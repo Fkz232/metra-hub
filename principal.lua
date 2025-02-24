@@ -19,6 +19,7 @@ local Window = Rayfield:CreateWindow({
 })
 
 local AbaScripts = Window:CreateTab("Scripts", nil)
+local AbaAnimacoes = Window:CreateTab("Animações", nil)
 local AbaAbracos = Window:CreateTab("Abraços", nil)
 local AbaDesastresNaturais = Window:CreateTab("Desastres Naturais", nil)
 local AbaEmotes = Window:CreateTab("Emotes", nil)
@@ -46,6 +47,13 @@ local SliderVelocidade = AbaScripts:CreateSlider({
    end,
 })
 
+local BotaoPuloInfinito = AbaScripts:CreateButton({
+   Name = "Pulo Infinito",
+   Callback = function()
+      loadstring(game:HttpGet('https://raw.githubusercontent.com/Fkz232/Project-Metra/refs/heads/main/Infjump.lua'))()
+   end,
+})
+
 local BotaoAimbot = AbaScripts:CreateButton({
    Name = "Aimbot",
    Callback = function()
@@ -67,17 +75,19 @@ local BotaoVfly = AbaScripts:CreateButton({
    end,
 })
 
-local BotaoEnergize = AbaScripts:CreateButton({
-   Name = "Energize",
+local SecaoAnimacoes = AbaAnimacoes:CreateSection("Animações", true)
+
+local BotaoSeraphicBlade = AbaAnimacoes:CreateButton({
+   Name = "Seraphic Blade",
    Callback = function()
-      loadstring(game:HttpGet(('https://pastebin.com/raw/PQfaN03z'),true))()
+      loadstring(game:HttpGet('https://pastefy.app/59mJGQGe/raw'))()
    end,
 })
 
-local BotaoPuloInfinito = AbaScripts:CreateButton({
-   Name = "Pulo Infinito",
+local BotaoEnergize = AbaAnimacoes:CreateButton({
+   Name = "Energize",
    Callback = function()
-      loadstring(game:HttpGet('https://raw.githubusercontent.com/Fkz232/Project-Metra/refs/heads/main/Infjump.lua'))()
+      loadstring(game:HttpGet(('https://pastebin.com/raw/PQfaN03z'),true))()
    end,
 })
 
