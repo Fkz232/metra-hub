@@ -1,6 +1,6 @@
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 
-if not Rayfield then
+if not Fluent then
     rconsoleprint("Falha ao carregar Rayfield!\n")
     return
 end
@@ -9,7 +9,7 @@ rconsoleprint("Por Metraton\n")
 rconsoleprint("Project Metra Carregado!")
 rconsoleprint("NÃO FECHE ")
 
-local Window = Rayfield:CreateWindow({
+local Window = Fluent:CreateWindow({
    Name = "Project Metra",
    LoadingTitle = "",
    LoadingSubtitle = "por Metraton",
