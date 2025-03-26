@@ -158,62 +158,41 @@ local BotaoAtivarHitbox = AbaHitbox:CreateButton({
    Callback = function()
       if not getgenv().HitboxSize then return end
 
-      for _, player in pairs(game:GetService("Players"):GetPlayers()) do
-         if player ~= game.Players.LocalPlayer then
-            local character = player.Character
-            if character and character:FindFirstChild("HumanoidRootPart") then
-               local highlight = Instance.new("Highlight")
-               highlight.Name = "HitboxHighlight"
-               highlight.Parent = character
-               highlight.Adornee = character
-               highlight.FillColor = Color3.fromRGB(255, 255, 255)
-               highlight.FillTransparency = 0.5
-               highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-               highlight.OutlineTransparency = 0
-               character.HumanoidRootPart.Size = Vector3.new(getgenv().HitboxSize, getgenv().HitboxSize, getgenv().HitboxSize)
-               character.HumanoidRootPart.Transparency = 0.5
-               character.HumanoidRootPart.Material = Enum.Material.ForceField
+      local hitboxEnabled = not getgenv().HitboxEnabled
+      getgenv().HitboxEnabled = hitboxEnabled
+
+      if hitboxEnabled then
+         for _, player in pairs(game:GetService("Players"):GetPlayers()) do
+            if player ~= game.Players.LocalPlayer then
+               local character = player.Character
+               if character and character:FindFirstChild("HumanoidRootPart") then
+                  local highlight = Instance.new("Highlight")
+                  highlight.Name = "HitboxHighlight"
+                  highlight.Parent = character
+                  highlight.Adornee = character
+                  highlight.FillColor = Color3.fromRGB(255, 255, 255)
+                  highlight.FillTransparency = 0.5
+                  highlight.OutlineColor = Color3.fromRGB(0, 255, 0) -- Neon verde
+                  highlight.OutlineTransparency = 0
+                  highlight.OutlineThickness = 0.5 -- Efeito neon
+                  character.HumanoidRootPart.Size = Vector3.new(getgenv().HitboxSize, getgenv().HitboxSize, getgenv().HitboxSize)
+                  character.HumanoidRootPart.Transparency = 0.5
+                  character.HumanoidRootPart.Material = Enum.Material.ForceField
+               end
             end
          end
-      end
-   end,
-})
-
-local BotaoHitboxRGB = AbaHitbox:CreateButton({
-   Name = "Hitbox RGB",
-   Callback = function()
-      if not getgenv().HitboxSize then return end
-
-      local colors = {}
-      for r = 0, 255, 51 do
-         for g = 0, 255, 51 do
-            for b = 0, 255, 51 do
-               table.insert(colors, Color3.fromRGB(r, g, b))
-            end
-         end
-      end
-
-      local index = 1
-      while true do
+      else
          for _, player in pairs(game:GetService("Players"):GetPlayers()) do
             if player ~= game.Players.LocalPlayer then
                local character = player.Character
                if character and character:FindFirstChild("HumanoidRootPart") then
                   local highlight = character:FindFirstChild("HitboxHighlight")
                   if highlight then
-                     highlight.FillColor = colors[index]
+                     highlight:Destroy()
                   end
                end
             end
          end
-
-         local tool = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool")
-         if tool then
-            tool.Handle.Color = colors[index]
-         end
-
-         index = index % #colors + 1
-         wait(0.5)
       end
    end,
 })
