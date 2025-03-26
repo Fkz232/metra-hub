@@ -1,88 +1,88 @@
-local UserInputService = game:GetService("UserInputService")
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local PlayerCharacter = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-local Camera = workspace.CurrentCamera
+local player = game.Players.LocalPlayer
+local playerTeam = player.Team
+local gui = Instance.new("ScreenGui", player.PlayerGui)
+local frame = Instance.new("Frame")
+local button = Instance.new("TextButton")
+local textBox = Instance.new("TextBox")
+local hitboxSize = 5
 
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+gui.Name = "RGBGui"
+gui.IgnoreGuiInset = true
+gui.ResetOnSpawn = false
+gui.Parent = player.PlayerGui
 
-local Button = Instance.new("TextButton")
-Button.Size = UDim2.new(0, 150, 0, 50)
-Button.Position = UDim2.new(0.5, -75, 0.8, -25)
-Button.Text = "Atirar"
-Button.TextSize = 24
-Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-Button.Parent = ScreenGui
+frame.Size = UDim2.new(0, 200, 0, 100)
+frame.Position = UDim2.new(0.5, -100, 0.5, -50)
+frame.BackgroundTransparency = 0.5
+frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+frame.BorderSizePixel = 2
+frame.BorderColor3 = Color3.fromRGB(255, 255, 255)
+frame.Draggable = true
+frame.Parent = gui
 
-local dragging = false
-local dragInput, dragStart, startPos
+button.Size = UDim2.new(0, 100, 0, 40)
+button.Position = UDim2.new(0, 50, 0, 50)
+button.Text = "Executar"
+button.TextColor3 = Color3.fromHSV(tick() % 5 / 5, 1, 1)
+button.Parent = frame
 
-Button.InputBegan:Connect(function(input, gameProcessed)
-    if gameProcessed then return end
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        startPos = Button.Position
-    end
-end)
+textBox.Size = UDim2.new(0, 100, 0, 40)
+textBox.Position = UDim2.new(0, 50, 0, 10)
+textBox.PlaceholderText = "Tamanho da Hitbox"
+textBox.TextColor3 = Color3.fromHSV(tick() % 5 / 5, 1, 1)
+textBox.Parent = frame
 
-Button.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = false
-    end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-    if dragging then
-        local delta = input.Position - dragStart
-        Button.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-    end
-end)
-
-local function equipSecondItem()
-    local character = LocalPlayer.Character
-    local backpack = LocalPlayer.Backpack
-    local inventory = backpack:GetChildren()
-
-    if #inventory > 1 then
-        local secondItem = inventory[2]
-        secondItem.Parent = character
+local function updateRGBColor()
+    while wait(0.1) do
+        local time = tick() % 5
+        frame.BackgroundColor3 = Color3.fromHSV(time / 5, 1, 1)
+        button.TextColor3 = Color3.fromHSV(time / 5, 1, 1)
+        textBox.TextColor3 = Color3.fromHSV(time / 5, 1, 1)
     end
 end
 
-local function shootAtClosestPlayer()
-    local closestPlayer = nil
-    local closestDistance = math.huge
-    local characterPosition = PlayerCharacter.HumanoidRootPart.Position
+local function changeHitboxSize()
+    hitboxSize = tonumber(textBox.Text) or hitboxSize
+end
 
-    for _, player in pairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            if player.Team ~= LocalPlayer.Team then
-                local distance = (player.Character.HumanoidRootPart.Position - characterPosition).Magnitude
-                if distance < closestDistance then
-                    closestPlayer = player
-                    closestDistance = distance
-                end
-            end
-        end
+button.MouseButton1Click:Connect(function()
+    changeHitboxSize()
+end)
+
+local function createHitbox()
+    local hitbox = Instance.new("Part")
+    hitbox.Size = Vector3.new(hitboxSize, hitboxSize, hitboxSize)
+    hitbox.Position = player.Character.PrimaryPart.Position
+    hitbox.Anchored = true
+    hitbox.CanCollide = false
+    hitbox.Transparency = 1
+    hitbox.Parent = game.Workspace
+
+    if playerTeam == game.Teams.Red then
+        hitbox.BrickColor = BrickColor.Red()
+    else
+        hitbox.BrickColor = BrickColor.Blue()
     end
 
-    if closestPlayer then
-        local targetPosition = closestPlayer.Character.HumanoidRootPart.Position
-        local direction = (targetPosition - characterPosition).unit
-        
-        local screenPosition = Camera:WorldToScreenPoint(targetPosition + direction * 5)
-        
-        local touchInput = Instance.new("InputObject")
-        touchInput.UserInputType = Enum.UserInputType.Touch
-        touchInput.Position = Vector2.new(screenPosition.X, screenPosition.Y)
-        UserInputService.InputBegan:Fire(touchInput)
+    local highlight = Instance.new("Highlight")
+    highlight.Parent = hitbox
+    highlight.FillColor = hitbox.BrickColor.Color
+    highlight.OutlineColor = hitbox.BrickColor.Color
+end
+
+local function hitboxLoop()
+    while player.Character and player.Character:FindFirstChild("HumanoidRootPart") do
+        createHitbox()
+        wait(1)
     end
 end
 
-Button.MouseButton1Click:Connect(function()
-    equipSecondItem()
-    wait(0.5)
-    shootAtClosestPlayer()
+spawn(hitboxLoop)
+
+player.CharacterAdded:Connect(function(character)
+    character:WaitForChild("HumanoidRootPart").Changed:Connect(function()
+        createHitbox()
+    end)
 end)
+
+updateRGBColor()
