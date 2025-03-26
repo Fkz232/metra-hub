@@ -19,7 +19,6 @@ local Window = Rayfield:CreateWindow({
 })
 
 local AbaScripts = Window:CreateTab("Scripts", nil)
-local AbaHitbox = Window:CreateTab("Hitbox", nil)
 local AbaAnimacoes = Window:CreateTab("Animações", nil)
 local AbaAbracos = Window:CreateTab("Abraços", nil)
 local AbaDesastresNaturais = Window:CreateTab("Desastres Naturais", nil)
@@ -139,62 +138,6 @@ local BotaoGhostHub = AbaGhostHub:CreateButton({
    Name = "GhostHub",
    Callback = function()
       loadstring(game:HttpGet('https://raw.githubusercontent.com/GhostPlayer352/Test4/main/GhostHub'))()
-   end,
-})
-
-local SecaoHitbox = AbaHitbox:CreateSection("Hitbox", true)
-
-local CaixaHitbox = AbaHitbox:CreateInput({
-   Name = "Tamanho da Hitbox",
-   PlaceholderText = "Digite um número",
-   Numeric = true,
-   Callback = function(Value)
-      getgenv().HitboxSize = tonumber(Value) or 5
-   end,
-})
-
-local BotaoAtivarHitbox = AbaHitbox:CreateButton({
-   Name = "Ativar/Desativar Hitbox",
-   Callback = function()
-      if not getgenv().HitboxSize then return end
-
-      local hitboxEnabled = not getgenv().HitboxEnabled
-      getgenv().HitboxEnabled = hitboxEnabled
-
-      if hitboxEnabled then
-         for _, player in pairs(game:GetService("Players"):GetPlayers()) do
-            if player ~= game.Players.LocalPlayer then
-               local character = player.Character
-               if character and character:FindFirstChild("HumanoidRootPart") then
-                  local highlight = Instance.new("Highlight")
-                  highlight.Name = "HitboxHighlight"
-                  highlight.Parent = character
-                  highlight.Adornee = character
-                  highlight.FillColor = Color3.fromRGB(255, 255, 255)
-                  highlight.FillTransparency = 0.5
-                  highlight.OutlineColor = Color3.fromRGB(0, 255, 0) 
-                  highlight.OutlineTransparency = 0
-                  highlight.OutlineThickness = 0.5
-                  highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-                  character.HumanoidRootPart.Size = Vector3.new(getgenv().HitboxSize, getgenv().HitboxSize, getgenv().HitboxSize)
-                  character.HumanoidRootPart.Transparency = 0.5
-                  character.HumanoidRootPart.Material = Enum.Material.ForceField
-               end
-            end
-         end
-      else
-         for _, player in pairs(game:GetService("Players"):GetPlayers()) do
-            if player ~= game.Players.LocalPlayer then
-               local character = player.Character
-               if character and character:FindFirstChild("HumanoidRootPart") then
-                  local highlight = character:FindFirstChild("HitboxHighlight")
-                  if highlight then
-                     highlight:Destroy()
-                  end
-               end
-            end
-         end
-      end
    end,
 })
 
