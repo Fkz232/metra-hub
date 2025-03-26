@@ -158,24 +158,33 @@ local BotaoAtivarHitbox = AbaHitbox:CreateButton({
    Callback = function()
       if not getgenv().HitboxSize then return end
 
+      local playerCharacter = game.Players.LocalPlayer.Character
+      if playerCharacter and playerCharacter:FindFirstChild("HumanoidRootPart") then
+         local highlight = Instance.new("Highlight")
+         highlight.Name = "HitboxHighlight"
+         highlight.Parent = playerCharacter
+         highlight.Adornee = playerCharacter
+         highlight.FillColor = Color3.fromRGB(255, 255, 255)
+         highlight.FillTransparency = 0.5
+         highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+         highlight.OutlineTransparency = 0
+         playerCharacter.HumanoidRootPart.Size = Vector3.new(getgenv().HitboxSize, getgenv().HitboxSize, getgenv().HitboxSize)
+         playerCharacter.HumanoidRootPart.Transparency = 0.5
+         playerCharacter.HumanoidRootPart.Material = Enum.Material.ForceField
+      end
+
       for _, player in pairs(game:GetService("Players"):GetPlayers()) do
          if player ~= game.Players.LocalPlayer then
             local character = player.Character
             if character and character:FindFirstChild("HumanoidRootPart") then
-               character.HumanoidRootPart.Size = Vector3.new(getgenv().HitboxSize, getgenv().HitboxSize, getgenv().HitboxSize)
-               character.HumanoidRootPart.Transparency = 0.5
-               character.HumanoidRootPart.Material = Enum.Material.ForceField
-
-               if not character:FindFirstChild("HitboxHighlight") then
-                  local highlight = Instance.new("Highlight")
-                  highlight.Name = "HitboxHighlight"
-                  highlight.Parent = character
-                  highlight.Adornee = character
-                  highlight.FillColor = Color3.fromRGB(255, 0, 0)
-                  highlight.FillTransparency = 0.5
-                  highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-                  highlight.OutlineTransparency = 0
-               end
+               local highlight = Instance.new("Highlight")
+               highlight.Name = "HitboxHighlight"
+               highlight.Parent = character
+               highlight.Adornee = character
+               highlight.FillColor = Color3.fromRGB(255, 255, 255)
+               highlight.FillTransparency = 0.5
+               highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+               highlight.OutlineTransparency = 0
             end
          end
       end
@@ -186,7 +195,16 @@ local BotaoHitboxRGB = AbaHitbox:CreateButton({
    Name = "Hitbox RGB",
    Callback = function()
       if not getgenv().HitboxSize then return end
-      local colors = {Color3.fromRGB(255, 0, 0), Color3.fromRGB(0, 255, 0), Color3.fromRGB(0, 0, 255)}
+
+      local colors = {}
+      for r = 0, 255, 51 do
+         for g = 0, 255, 51 do
+            for b = 0, 255, 51 do
+               table.insert(colors, Color3.fromRGB(r, g, b))
+            end
+         end
+      end
+
       local index = 1
       while true do
          for _, player in pairs(game:GetService("Players"):GetPlayers()) do
@@ -195,12 +213,22 @@ local BotaoHitboxRGB = AbaHitbox:CreateButton({
                if character and character:FindFirstChild("HumanoidRootPart") then
                   local highlight = character:FindFirstChild("HitboxHighlight")
                   if highlight then
-                     highlight.FillColor = colors[index]
-                     index = index % #colors + 1
+                     if player.Team ~= game.Players.LocalPlayer.Team then
+                        highlight.FillColor = Color3.fromRGB(255, 255, 255)
+                     else
+                        highlight.FillColor = colors[index]
+                     end
                   end
                end
             end
          end
+
+         local tool = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool")
+         if tool then
+            tool.Handle.Color = colors[index]
+         end
+
+         index = index % #colors + 1
          wait(0.5)
       end
    end,
