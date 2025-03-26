@@ -24,6 +24,7 @@ local AbaAbracos = Window:CreateTab("Abraços", nil)
 local AbaDesastresNaturais = Window:CreateTab("Desastres Naturais", nil)
 local AbaEmotes = Window:CreateTab("Emotes", nil)
 local AbaGhostHub = Window:CreateTab("GhostHub", nil)
+local AbaHitbox = Window:CreateTab("Hitbox", nil)
 
 local SecaoPrincipal = AbaScripts:CreateSection("Principal")
 local SecaoFuncoes = AbaScripts:CreateSection("Funções", true)
@@ -138,6 +139,46 @@ local BotaoGhostHub = AbaGhostHub:CreateButton({
    Name = "GhostHub",
    Callback = function()
       loadstring(game:HttpGet('https://raw.githubusercontent.com/GhostPlayer352/Test4/main/GhostHub'))()
+   end,
+})
+
+local SecaoHitbox = AbaHitbox:CreateSection("Hitbox", true)
+
+local CaixaHitbox = AbaHitbox:CreateInput({
+   Name = "Tamanho da Hitbox",
+   PlaceholderText = "Digite um número",
+   Numeric = true,
+   Callback = function(Value)
+      getgenv().HitboxSize = tonumber(Value) or 5
+   end,
+})
+
+local BotaoAtivarHitbox = AbaHitbox:CreateButton({
+   Name = "Ativar Hitbox",
+   Callback = function()
+      if not getgenv().HitboxSize then return end
+
+      for _, player in pairs(game:GetService("Players"):GetPlayers()) do
+         if player ~= game.Players.LocalPlayer then
+            local character = player.Character
+            if character and character:FindFirstChild("HumanoidRootPart") then
+               character.HumanoidRootPart.Size = Vector3.new(getgenv().HitboxSize, getgenv().HitboxSize, getgenv().HitboxSize)
+               character.HumanoidRootPart.Transparency = 0.5
+               character.HumanoidRootPart.Material = Enum.Material.ForceField
+
+               if not character:FindFirstChild("HitboxHighlight") then
+                  local highlight = Instance.new("Highlight")
+                  highlight.Name = "HitboxHighlight"
+                  highlight.Parent = character
+                  highlight.Adornee = character
+                  highlight.FillColor = Color3.fromRGB(255, 0, 0)
+                  highlight.FillTransparency = 0.5
+                  highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+                  highlight.OutlineTransparency = 0
+               end
+            end
+         end
+      end
    end,
 })
 
