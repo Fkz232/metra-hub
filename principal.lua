@@ -182,4 +182,28 @@ local BotaoAtivarHitbox = AbaHitbox:CreateButton({
    end,
 })
 
+local BotaoHitboxRGB = AbaHitbox:CreateButton({
+   Name = "Hitbox RGB",
+   Callback = function()
+      if not getgenv().HitboxSize then return end
+      local colors = {Color3.fromRGB(255, 0, 0), Color3.fromRGB(0, 255, 0), Color3.fromRGB(0, 0, 255)}
+      local index = 1
+      while true do
+         for _, player in pairs(game:GetService("Players"):GetPlayers()) do
+            if player ~= game.Players.LocalPlayer then
+               local character = player.Character
+               if character and character:FindFirstChild("HumanoidRootPart") then
+                  local highlight = character:FindFirstChild("HitboxHighlight")
+                  if highlight then
+                     highlight.FillColor = colors[index]
+                     index = index % #colors + 1
+                  end
+               end
+            end
+         end
+         wait(0.5)
+      end
+   end,
+})
+
 rconsoleprint("Project Metra carregado com sucesso!\n")
