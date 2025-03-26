@@ -19,12 +19,12 @@ local Window = Rayfield:CreateWindow({
 })
 
 local AbaScripts = Window:CreateTab("Scripts", nil)
+local AbaHitbox = Window:CreateTab("Hitbox", nil)
 local AbaAnimacoes = Window:CreateTab("Animações", nil)
 local AbaAbracos = Window:CreateTab("Abraços", nil)
 local AbaDesastresNaturais = Window:CreateTab("Desastres Naturais", nil)
 local AbaEmotes = Window:CreateTab("Emotes", nil)
 local AbaGhostHub = Window:CreateTab("GhostHub", nil)
-local AbaHitbox = Window:CreateTab("Hitbox", nil)
 
 local SecaoPrincipal = AbaScripts:CreateSection("Principal")
 local SecaoFuncoes = AbaScripts:CreateSection("Funções", true)
@@ -154,7 +154,7 @@ local CaixaHitbox = AbaHitbox:CreateInput({
 })
 
 local BotaoAtivarHitbox = AbaHitbox:CreateButton({
-   Name = "Ativar Hitbox",
+   Name = "Ativar/Desativar Hitbox",
    Callback = function()
       if not getgenv().HitboxSize then return end
 
@@ -175,6 +175,7 @@ local BotaoAtivarHitbox = AbaHitbox:CreateButton({
                   highlight.OutlineColor = Color3.fromRGB(0, 255, 0) 
                   highlight.OutlineTransparency = 0
                   highlight.OutlineThickness = 0.5
+                  highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
                   character.HumanoidRootPart.Size = Vector3.new(getgenv().HitboxSize, getgenv().HitboxSize, getgenv().HitboxSize)
                   character.HumanoidRootPart.Transparency = 0.5
                   character.HumanoidRootPart.Material = Enum.Material.ForceField
