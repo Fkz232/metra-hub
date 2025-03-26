@@ -1,4 +1,4 @@
-Deixe o script em pt-br sem comentários: local CoreGui = game:GetService("StarterGui")
+local CoreGui = game:GetService("StarterGui")
 local Players = game:GetService("Players")
 
 local function isNumber(str)
