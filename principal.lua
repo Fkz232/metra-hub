@@ -158,21 +158,6 @@ local BotaoAtivarHitbox = AbaHitbox:CreateButton({
    Callback = function()
       if not getgenv().HitboxSize then return end
 
-      local playerCharacter = game.Players.LocalPlayer.Character
-      if playerCharacter and playerCharacter:FindFirstChild("HumanoidRootPart") then
-         local highlight = Instance.new("Highlight")
-         highlight.Name = "HitboxHighlight"
-         highlight.Parent = playerCharacter
-         highlight.Adornee = playerCharacter
-         highlight.FillColor = Color3.fromRGB(255, 255, 255)
-         highlight.FillTransparency = 0.5
-         highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-         highlight.OutlineTransparency = 0
-         playerCharacter.HumanoidRootPart.Size = Vector3.new(getgenv().HitboxSize, getgenv().HitboxSize, getgenv().HitboxSize)
-         playerCharacter.HumanoidRootPart.Transparency = 0.5
-         playerCharacter.HumanoidRootPart.Material = Enum.Material.ForceField
-      end
-
       for _, player in pairs(game:GetService("Players"):GetPlayers()) do
          if player ~= game.Players.LocalPlayer then
             local character = player.Character
@@ -185,6 +170,9 @@ local BotaoAtivarHitbox = AbaHitbox:CreateButton({
                highlight.FillTransparency = 0.5
                highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
                highlight.OutlineTransparency = 0
+               character.HumanoidRootPart.Size = Vector3.new(getgenv().HitboxSize, getgenv().HitboxSize, getgenv().HitboxSize)
+               character.HumanoidRootPart.Transparency = 0.5
+               character.HumanoidRootPart.Material = Enum.Material.ForceField
             end
          end
       end
@@ -213,11 +201,7 @@ local BotaoHitboxRGB = AbaHitbox:CreateButton({
                if character and character:FindFirstChild("HumanoidRootPart") then
                   local highlight = character:FindFirstChild("HitboxHighlight")
                   if highlight then
-                     if player.Team ~= game.Players.LocalPlayer.Team then
-                        highlight.FillColor = Color3.fromRGB(255, 255, 255)
-                     else
-                        highlight.FillColor = colors[index]
-                     end
+                     highlight.FillColor = colors[index]
                   end
                end
             end
