@@ -12,7 +12,8 @@ local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.new(0, 300, 0, 200)
 MainFrame.Position = UDim2.new(0.5, -150, 0.5, -100)
 MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-MainFrame.BorderSizePixel = 0
+MainFrame.BorderSizePixel = 2
+MainFrame.BorderColor3 = Color3.fromRGB(50, 50, 50)
 MainFrame.Parent = ScreenGui
 
 local DragBorder = Instance.new("Frame")
@@ -116,7 +117,7 @@ end)
 
 local ToggleButton = Instance.new("TextButton")
 ToggleButton.Size = UDim2.new(0, 120, 0, 40)
-ToggleButton.Position = UDim2.new(0.5, -60, 0, 40)
+ToggleButton.Position = UDim2.new(0.5, -60, 0, 50)
 ToggleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 ToggleButton.Text = "Ativar Hitbox"
 ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -125,20 +126,9 @@ ToggleButton.Font = Enum.Font.SourceSans
 ToggleButton.Parent = InnerFrame
 coroutine.wrap(function() AnimateRGBText(ToggleButton) end)()
 
-local RGBButton = Instance.new("TextButton")
-RGBButton.Size = UDim2.new(0, 120, 0, 40)
-RGBButton.Position = UDim2.new(0.5, -60, 0, 85)
-RGBButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-RGBButton.Text = "RGB Hitbox"
-RGBButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-RGBButton.TextSize = 16
-RGBButton.Font = Enum.Font.SourceSans
-RGBButton.Parent = InnerFrame
-coroutine.wrap(function() AnimateRGBText(RGBButton) end)()
-
 local SizeLabel = Instance.new("TextLabel")
 SizeLabel.Size = UDim2.new(0, 100, 0, 20)
-SizeLabel.Position = UDim2.new(0.5, -50, 0, 130)
+SizeLabel.Position = UDim2.new(0.5, -50, 0, 100)
 SizeLabel.BackgroundTransparency = 1
 SizeLabel.Text = "Tamanho Hitbox: 1"
 SizeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -149,7 +139,7 @@ coroutine.wrap(function() AnimateRGBText(SizeLabel) end)()
 
 local SizeSlider = Instance.new("TextButton")
 SizeSlider.Size = UDim2.new(0, 200, 0, 10)
-SizeSlider.Position = UDim2.new(0.5, -100, 0, 155)
+SizeSlider.Position = UDim2.new(0.5, -100, 0, 125)
 SizeSlider.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 SizeSlider.Text = ""
 SizeSlider.Parent = InnerFrame
@@ -162,7 +152,7 @@ SliderKnob.Parent = SizeSlider
 
 local ColorButton = Instance.new("TextButton")
 ColorButton.Size = UDim2.new(0, 120, 0, 40)
-ColorButton.Position = UDim2.new(0.5, -60, 0, 175)
+ColorButton.Position = UDim2.new(0.5, -60, 0, 145)
 ColorButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 ColorButton.Text = "Escolher Cor"
 ColorButton.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -172,40 +162,9 @@ ColorButton.Parent = InnerFrame
 coroutine.wrap(function() AnimateRGBText(ColorButton) end)()
 
 local HitboxEnabled = false
-local RGBHitboxEnabled = false
 local CurrentHitboxSize = 1
 local CurrentHitboxColor = Color3.fromRGB(255, 0, 0)
 local OriginalSizes = {}
-
-local function AnimateRGBHitbox()
-    while RGBHitboxEnabled do
-        local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-        local colors = {
-            Color3.fromRGB(255, 0, 0),
-            Color3.fromRGB(255, 255, 0),
-            Color3.fromRGB(0, 255, 0),
-            Color3.fromRGB(0, 255, 255),
-            Color3.fromRGB(0, 0, 255),
-            Color3.fromRGB(255, 0, 255),
-            Color3.fromRGB(255, 0, 0)
-        }
-        for i = 1, #colors - 1 do
-            if not RGBHitboxEnabled then break end
-            for _, player in ipairs(Players:GetPlayers()) do
-                if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                    local rootPart = player.Character.HumanoidRootPart
-                    if HitboxEnabled then
-                        rootPart.BrickColor = BrickColor.new(colors[i + 1])
-                    end
-                end
-            end
-            local tween = TweenService:Create(Instance.new("Frame"), tweenInfo, {BackgroundColor3 = colors[i + 1]})
-            tween:Play()
-            tween.Completed:Wait()
-        end
-        wait()
-    end
-end
 
 local function ApplyHitbox()
     for _, player in ipairs(Players:GetPlayers()) do
@@ -216,9 +175,7 @@ local function ApplyHitbox()
                     OriginalSizes[player] = rootPart.Size
                 end
                 rootPart.Size = Vector3.new(CurrentHitboxSize, CurrentHitboxSize, CurrentHitboxSize)
-                if not RGBHitboxEnabled then
-                    rootPart.BrickColor = BrickColor.new(CurrentHitboxColor)
-                end
+                rootPart.BrickColor = BrickColor.new(CurrentHitboxColor)
                 rootPart.Transparency = 0.5
             else
                 if OriginalSizes[player] then
@@ -235,17 +192,6 @@ ToggleButton.MouseButton1Click:Connect(function()
     ToggleButton.Text = HitboxEnabled and "Desativar Hitbox" or "Ativar Hitbox"
     ToggleButton.BackgroundColor3 = HitboxEnabled and Color3.fromRGB(0, 150, 0) or Color3.fromRGB(50, 50, 50)
     ApplyHitbox()
-end)
-
-RGBButton.MouseButton1Click:Connect(function()
-    RGBHitboxEnabled = not RGBHitboxEnabled
-    RGBButton.Text = RGBHitboxEnabled and "Desativar RGB" or "RGB Hitbox"
-    RGBButton.BackgroundColor3 = RGBHitboxEnabled and Color3.fromRGB(0, 150, 0) or Color3.fromRGB(50, 50, 50)
-    if RGBHitboxEnabled and HitboxEnabled then
-        coroutine.wrap(AnimateRGBHitbox)()
-    else
-        ApplyHitbox()
-    end
 end)
 
 local function UpdateSlider(input)
@@ -266,7 +212,7 @@ SizeSlider.InputChanged:Connect(UpdateSlider)
 ColorButton.MouseButton1Click:Connect(function()
     local colorInput = Instance.new("TextBox")
     colorInput.Size = UDim2.new(0, 100, 0, 30)
-    colorInput.Position = UDim2.new(0.5, -50, 0, 220)
+    colorInput.Position = UDim2.new(0.5, -50, 0, 190)
     colorInput.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     colorInput.Text = tostring(CurrentHitboxColor)
     colorInput.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -277,7 +223,7 @@ ColorButton.MouseButton1Click:Connect(function()
         local r, g, b = colorInput.Text:match("(%d+), (%d+), (%d+)")
         if r and g and b then
             CurrentHitboxColor = Color3.fromRGB(tonumber(r), tonumber(g), tonumber(b))
-            if HitboxEnabled and not RGBHitboxEnabled then
+            if HitboxEnabled then
                 ApplyHitbox()
             end
         end
