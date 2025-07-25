@@ -89,8 +89,8 @@ local function AnimateRGBText(element)
 end
 
 local TitleLabel = Instance.new("TextLabel")
-TitleLabel.Size = UDim2.new(1, 0, 0, 30)
-TitleLabel.Position = UDim2.new(0, 0, 0, 5)
+TitleLabel.Size = UDim2.new(1, -10, 0, 30)
+TitleLabel.Position = UDim2.new(0, 5, 0, 5)
 TitleLabel.BackgroundTransparency = 1
 TitleLabel.Text = "NexosZero Hitbox"
 TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
