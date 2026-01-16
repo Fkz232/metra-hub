@@ -1,13 +1,3 @@
------ speed
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoid = character:WaitForChild("Humanoid")
-
-humanoid.WalkSpeed = 0
-
-
--------[ sfx ] -------
 -- Define the sfx function if not already defined
 local function sfx(soundId, parent, is3D)
 	local sound = Instance.new("Sound")
@@ -24,454 +14,48 @@ end
 task.spawn(function()
 	-- Forceful air
 	local forceful = sfx("122261039674349", workspace, true)
-	forceful.Volume = 1
+	forceful.Volume = 5
 	forceful.TimePosition = 0
 	forceful:Play()
 
 	-- Boowoowoo
-	local boowoowoo = sfx("0", workspace, true)
+	local boowoowoo = sfx("7652527370", workspace, true)
 	boowoowoo.Volume = 1
 	boowoowoo:Play()
 
 	-- Fastpull (from your comment)
-	local fastpull = sfx("0", workspace, true)
+	local fastpull = sfx("127117086239111", workspace, true)
 	fastpull.Volume = 2
 	fastpull:Play()
 
 	-- KJ sound
-	local kj = sfx("0", workspace, true)
+	local kj = sfx("76786040776528", workspace, true)
 	kj.Volume = 3
 	kj:Play()
 
 	-- Gunchopper
-	local gunchopper = sfx("0", workspace, true)
+	local gunchopper = sfx("8737379396", workspace, true)
 	gunchopper.Volume = 0.5
 	gunchopper:Play()
 
 	-- Glitch sound
 	local glitch = sfx("3276835551", workspace, true)
-	glitch.Volume = 4
+	glitch.Volume = 1
 	glitch:Play()
 
 	wait(0.5)
 
 	-- Voiceline
 	local voiceline = sfx("0", workspace, true)
-	voiceline.Volume = 1
+	voiceline.Volume = 4
 	voiceline:Play()
 
 	-- Boom
 	local boom = sfx("7390331288", workspace, true)
-	boom.Volume = 1
+	boom.Volume = 2
 	boom:Play()
 end)
 
-
-
---- bring
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local Debris = game:GetService("Debris")
-local player = Players.LocalPlayer
-
-local FREEZE_START_DISTANCE = 30
-local TARGET_DISTANCE = 12
-local FLING_SPEED = 500
-local PULL_FORCE = 90000
-local PULL_DURATION = 6
-local HEIGHT_OFFSET = 3.2
-
-local function getNearbyUnanchoredParts(centerPos, range)
-	local region = Region3.new(centerPos - Vector3.new(range, range, range), centerPos + Vector3.new(range, range, range))
-	local parts = workspace:FindPartsInRegion3WithIgnoreList(region, {player.Character}, math.huge)
-	local valid = {}
-
-	for _, part in ipairs(parts) do
-		if part:IsA("BasePart") and not part.Anchored and not part:IsDescendantOf(player.Character) then
-			table.insert(valid, part)
-		end
-	end
-	return valid
-end
-
-local function pullThenFling()
-	local character = player.Character
-	if not character then return end
-
-	local hrp = character:FindFirstChild("HumanoidRootPart")
-	if not hrp then return end
-
-	local parts = getNearbyUnanchoredParts(hrp.Position, FREEZE_START_DISTANCE)
-	local tracking = {}
-
-	for _, part in ipairs(parts) do
-		local pull = Instance.new("BodyPosition")
-		pull.Name = "PullPosition"
-		pull.MaxForce = Vector3.new(PULL_FORCE, PULL_FORCE, PULL_FORCE)
-		pull.P = 7000
-		pull.D = 500
-		pull.Parent = part
-
-		tracking[part] = pull
-	end
-
-	local startTime = tick()
-
-	local updateConnection
-	updateConnection = RunService.Heartbeat:Connect(function()
-		local now = tick()
-		local elapsed = now - startTime
-
-		if elapsed >= PULL_DURATION then
-			updateConnection:Disconnect()
-
-			for part, pull in pairs(tracking) do
-				if pull and pull.Parent then
-					pull:Destroy()
-				end
-
-				if part and part.Parent then
-					local fling = Instance.new("BodyVelocity")
-					fling.Velocity = hrp.CFrame.LookVector * FLING_SPEED
-					fling.MaxForce = Vector3.new(1e5, 1e5, 1e5)
-					fling.P = 10000
-					fling.Parent = part
-					Debris:AddItem(fling, 0.5)
-
-					-- Kill after 0.3 seconds using Humanoid health
-					task.delay(0.3, function()
-						local model = part:FindFirstAncestorOfClass("Model")
-						if model then
-							local humanoid = model:FindFirstChildOfClass("Humanoid")
-							if humanoid then
-								humanoid.Health = 0
-							end
-						end
-					end)
-				end
-			end
-		else
-			local frontPos = hrp.Position + hrp.CFrame.LookVector * TARGET_DISTANCE + Vector3.new(0, HEIGHT_OFFSET, 0)
-			for part, pull in pairs(tracking) do
-				if pull and part then
-					pull.Position = frontPos
-				end
-			end
-		end
-	end)
-end
-
--- Run once
-pullThenFling()
-
--- divergent fist blue fire
------------------------[[ blue glowing effect fire 1 ]]----------------------
--- LocalScript (StarterPlayerScripts)
-
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local rightArm = character:WaitForChild("Right Arm") -- R6 only
-
--- Remove existing fire if any
-if rightArm:FindFirstChild("CyanFire") then
-	rightArm.CyanFire:Destroy()
-end
-
--- Create attachment 1 stud below the arm
-local attachment = Instance.new("Attachment")
-attachment.Name = "CyanFire"
-attachment.Position = Vector3.new(0, -1, 0)
-attachment.Parent = rightArm
-
--- Create the particle emitter
-local particle = Instance.new("ParticleEmitter")
-particle.Name = "FireEffect"
-particle.Texture = "rbxassetid://284205403"
-particle.Parent = attachment
-particle.Rate = 60
-particle.Lifetime = NumberRange.new(0.5, 0.7)
-particle.Speed = NumberRange.new(1, 2)
-particle.Rotation = NumberRange.new(0, 360)
-particle.RotSpeed = NumberRange.new(-90, 90)
-
--- Doubled size
-particle.Size = NumberSequence.new{
-	NumberSequenceKeypoint.new(0, 1),      -- originally 0.5
-	NumberSequenceKeypoint.new(0.3, 1.5),    -- originally 1
-	NumberSequenceKeypoint.new(1, 0)
-}
-
-particle.Transparency = NumberSequence.new{
-	NumberSequenceKeypoint.new(0, 0.1),
-	NumberSequenceKeypoint.new(0.6, 0.3),
-	NumberSequenceKeypoint.new(1, 1)
-}
-
-particle.Color = ColorSequence.new{
-	ColorSequenceKeypoint.new(0, Color3.fromRGB(10, 10, 10)),
-	ColorSequenceKeypoint.new(0.4, Color3.fromRGB(0, 255, 255)),
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 180, 180))
-}
-
-particle.LightEmission = 0.6
-particle.LightInfluence = 0.3
-particle.Enabled = true
-
--- Auto remove after 1 second
-task.delay(1.8, function()
-	if attachment and attachment.Parent then
-		attachment:Destroy()
-	end
-end)
------------------------[[ animation charge up ]]-----------------------
-local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoid = character:WaitForChild("Humanoid")
-
-local fadeTime = 0.5
-
--- Animation 1
-local anim1 = Instance.new("Animation")
-anim1.AnimationId = "rbxassetid://243662996"
-local track1 = humanoid:LoadAnimation(anim1)
-track1:Play(fadeTime)
-track1.TimePosition = 0.8
-track1:AdjustSpeed(0)
-task.delay(1, function()
-    track1:Stop(fadeTime)
-end)
-
--- Animation 2
-local anim2 = Instance.new("Animation")
-anim2.AnimationId = "rbxassetid://243653141"
-local track2 = humanoid:LoadAnimation(anim2)
-track2:Play(fadeTime)
-track2.TimePosition = 0.5
-track2:AdjustSpeed(0.5)
-task.delay(1, function()
-    track2:Stop(fadeTime)
-end)
-
--- Animation 3
-local anim3 = Instance.new("Animation")
-anim3.AnimationId = "rbxassetid://54456096"
-local track3 = humanoid:LoadAnimation(anim3)
-track3:Play(fadeTime)
-track3.TimePosition = 0.9
-track3:AdjustSpeed(0)
-task.delay(1, function()
-    track3:Stop(fadeTime)
-end)
-
--- Animation 4
-local anim4 = Instance.new("Animation")
-anim4.AnimationId = "rbxassetid://85836966"
-local track4 = humanoid:LoadAnimation(anim4)
-track4:Play(fadeTime)
-track4.TimePosition = 0.5
-track4:AdjustSpeed(0)
-task.delay(1, function()
-    track4:Stop(fadeTime)
-end)
-
--- Animation 5
-local anim5 = Instance.new("Animation")
-anim5.AnimationId = "rbxassetid://243656287"
-local track5 = humanoid:LoadAnimation(anim5)
-track5:Play(fadeTime)
-track5.TimePosition = 0.5
-track5:AdjustSpeed(1)
-task.delay(1, function()
-    track5:Stop(fadeTime)
-end)
--- [[animation ends, and starts up wait and leap ]] --
-Wait(1)
--- leap
-local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local rootPart = character:WaitForChild("HumanoidRootPart")
-local leapDistance = 30
-local leapHeight = 0
-local function leapForward()
-    local bodyVelocity = Instance.new("BodyVelocity")
-    bodyVelocity.Velocity = rootPart.CFrame.lookVector * leapDistance + Vector3.new(0, leapHeight, 0)
-    bodyVelocity.MaxForce = Vector3.new(100000, 100000, 100000) -- Adjust as needed
-    bodyVelocity.P = 5000 -- Adjust the power of the force
-    bodyVelocity.Parent = rootPart
-    game:GetService("Debris"):AddItem(bodyVelocity, 0.2)
-end
-leapForward()
--- leap ends
--------------- [ charge up animation ] ---------
-local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoid = character:WaitForChild("Humanoid")
-
-local animation = Instance.new("Animation")
-animation.AnimationId = "rbxassetid://243662996"
-
-local animationTrack = humanoid:LoadAnimation(animation)
-
-local fadeTime = 0.5
-animationTrack:Play(fadeTime)
-animationTrack.TimePosition = 0.5
-animationTrack:AdjustSpeed(0)
-
-task.delay(1, function()
-    animationTrack:Stop(fadeTime)
-end)
-
-local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoid = character:WaitForChild("Humanoid")
-
-local animation = Instance.new("Animation")
-animation.AnimationId = "rbxassetid://93107107"
-
-local animationTrack = humanoid:LoadAnimation(animation)
-
-local fadeTime = 0.5
-animationTrack:Play(fadeTime)
-animationTrack.TimePosition = 0.5
-animationTrack:AdjustSpeed(0)
-
-task.delay(1, function()
-    animationTrack:Stop(fadeTime)
-end)
-
-local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoid = character:WaitForChild("Humanoid")
-
-local animation = Instance.new("Animation")
-animation.AnimationId = "rbxassetid://203929952"
-
-local animationTrack = humanoid:LoadAnimation(animation)
-
-local fadeTime = 0.5
-animationTrack:Play(fadeTime)
-animationTrack.TimePosition = 0.1
-animationTrack:AdjustSpeed(0)
-
-task.delay(1, function()
-    animationTrack:Stop(fadeTime)
-end)
---[-------------------[ black flash model ]--------------------]--
-wait(0.5)
--------------------[your model id here.]-------------------
-local assetId = "rbxassetid://70681471980871" -- test model
-
-local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humRootPart = character:WaitForChild("HumanoidRootPart")
-
---------------[setting]--------------
-local MoveRight = 0
-local MoveLeft = -1.5
-local MoveUp = 0
-local MoveDown = 18
-local MoveForward = 0
-local MoveBackward = -5
-local DestroyDelay = 1.5
-
--- Position offset relative to look direction
-local Offset = Vector3.new(
-	MoveRight - MoveLeft,
-	MoveUp - MoveDown,
-	MoveForward - MoveBackward
-)
-
----[don't touch anything here if you don't know what you're doing.]---
-
-local objects = game:GetObjects(assetId)
-if #objects > 0 then
-	local model = objects[1]
-	model.Parent = workspace
-	if model:IsA("Model") then
-		if not model.PrimaryPart then
-			local primary = model:FindFirstChildWhichIsA("BasePart")
-			if primary then
-				model.PrimaryPart = primary
-			end
-		end
-		for _, part in ipairs(model:GetDescendants()) do
-			if part:IsA("BasePart") then
-				part.CanCollide = false
-				part.Massless = true
-			end
-		end
-		if model.PrimaryPart then
-			local rootCFrame = humRootPart.CFrame
-			local lookVector = rootCFrame.LookVector
-			local spawnCFrame = rootCFrame + rootCFrame:VectorToWorldSpace(Offset)
-			local facingRotation = CFrame.new(Vector3.zero, lookVector)	model:SetPrimaryPartCFrame(CFrame.new(spawnCFrame.Position) * facingRotation)
-		end
-
-		-- Auto destroy
-		task.delay(DestroyDelay, function()
-			if model then
-				model:Destroy()
-			end
-		end)
-	end
-end
--- test--
-----------[[ final punch ]]--------
-wait(0.7)
-local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoid = character:WaitForChild("Humanoid")
-
-local animation = Instance.new("Animation")
-animation.AnimationId = "rbxassetid://218504594"
-
-local animationTrack = humanoid:LoadAnimation(animation)
-
-local fadeTime = 0.5
-animationTrack:Play(fadeTime)
-animationTrack.TimePosition = 1
-animationTrack:AdjustSpeed(-0.6)
-
-task.delay(1, function()
-    animationTrack:Stop(fadeTime)
-end)
-
-local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoid = character:WaitForChild("Humanoid")
-
-local animation = Instance.new("Animation")
-animation.AnimationId = "rbxassetid://204062532"
-
-local animationTrack = humanoid:LoadAnimation(animation)
-
-local fadeTime = 0.5
-animationTrack:Play(fadeTime)
-animationTrack.TimePosition = 1
-animationTrack:AdjustSpeed(0)
-
-task.delay(1, function()
-    animationTrack:Stop(fadeTime)
-end)
-
-local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoid = character:WaitForChild("Humanoid")
-
-local animation = Instance.new("Animation")
-animation.AnimationId = "rbxassetid://218508052"
-
-local animationTrack = humanoid:LoadAnimation(animation)
-
-local fadeTime = 0.5
-animationTrack:Play(fadeTime)
-animationTrack.TimePosition = 0.6
-animationTrack:AdjustSpeed(0.6)
-
-task.delay(1, function()
-    animationTrack:Stop(fadeTime)
-end)
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 
@@ -525,8 +109,8 @@ local function createBillboard(offset, text)
 end
 
 local function triggerBillboards()
-	createBillboard(Vector3.new(-5, 0, 0), "... BLACK.       ...")
-	createBillboard(Vector3.new(5, 0, 0), "... FLASH!!.")
+	createBillboard(Vector3.new(-5, 0, 0), "... cursed technique amplification.       ...")
+	createBillboard(Vector3.new(5, 0, 0), "... Blue.")
 end
 
 if player.Character then
@@ -534,10 +118,159 @@ if player.Character then
 else
 	player.CharacterAdded:Once(triggerBillboards)
 end
-Wait(0.9)
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
+
+
+local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
 
-humanoid.WalkSpeed = 16
+local animation = Instance.new("Animation")
+animation.AnimationId = "rbxassetid://93693205"
+
+local animationTrack = humanoid:LoadAnimation(animation)
+
+local fadeTime = 0.5
+animationTrack:Play(fadeTime)
+animationTrack.TimePosition = 0.5
+animationTrack:AdjustSpeed(0)
+
+task.delay(1.5, function()
+    animationTrack:Stop(fadeTime)
+end)
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Debris = game:GetService("Debris")
+
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local root = character:WaitForChild("HumanoidRootPart")
+
+-- Settings
+local BALL_COUNT = 1
+local ORBIT_RADIUS = 35
+local ORBIT_SPEED = 5
+local UP_DOWN_RANGE = 10
+local UP_DOWN_SPEED = 2
+local BALL_SIZE = 15
+local FADE_TIME = 1.5 -- seconds it takes to fade
+local LIFETIME = 1.5 -- seconds before fading begins
+local PULL_RADIUS = 50
+local PULL_VELOCITY = 500
+local PULL_FORCE = 9000000
+
+local balls = {}
+
+-- Get nearby unanchored parts
+local function getNearbyUnanchoredParts(centerPos, range)
+	local region = Region3.new(centerPos - Vector3.new(range, range, range), centerPos + Vector3.new(range, range, range))
+	local parts = workspace:FindPartsInRegion3WithIgnoreList(region, {player.Character}, math.huge)
+	local valid = {}
+
+	for _, part in ipairs(parts) do
+		if part:IsA("BasePart") and not part.Anchored and not part:IsDescendantOf(player.Character) then
+			table.insert(valid, part)
+		end
+	end
+	return valid
+end
+
+-- Function to create a glowing blue ball
+local function createBall()
+	local part = Instance.new("Part")
+	part.Shape = Enum.PartType.Ball
+	part.Size = Vector3.new(BALL_SIZE, BALL_SIZE, BALL_SIZE)
+	part.Material = Enum.Material.Neon
+	part.Color = Color3.fromRGB(0, 162, 255)
+	part.Anchored = true
+	part.CanCollide = false
+	part.Transparency = 0
+
+	local light = Instance.new("PointLight")
+	light.Color = part.Color
+	light.Brightness = 2
+	light.Range = 8
+	light.Parent = part
+
+	part.Parent = workspace
+	return part, light
+end
+
+-- Initialize balls
+for i = 1, BALL_COUNT do
+	local part, light = createBall()
+	local ballData = {
+		part = part,
+		light = light,
+		angle = math.random() * math.pi * 2,
+		heightOffset = math.random() * math.pi * 2,
+		verticalSpeed = math.random(1, 3) / 1.5,
+		baseOrbitSpeed = ORBIT_SPEED,
+		baseVerticalSpeed = UP_DOWN_SPEED,
+		fadeStartTime = nil,
+	}
+	table.insert(balls, ballData)
+
+	-- Begin fade after lifetime
+	task.delay(LIFETIME, function()
+		ballData.fadeStartTime = tick()
+	end)
+end
+
+-- Orbit + Pull update loop
+RunService.RenderStepped:Connect(function(dt)
+	local now = tick()
+
+	for _, ball in ipairs(balls) do
+		local part = ball.part
+		if not part or not part.Parent then continue end
+
+		-- Handle fading
+		local alpha = 0
+		if ball.fadeStartTime then
+			local elapsed = now - ball.fadeStartTime
+			alpha = math.clamp(elapsed / FADE_TIME, 0, 1)
+
+			part.Transparency = alpha
+			ball.light.Brightness = 2 * (1 - alpha)
+
+			if alpha >= 1 then
+				part:Destroy()
+				ball.part = nil
+				continue
+			end
+		end
+
+		-- Slow down as it fades
+		local fadeMultiplier = 1 - alpha
+		local orbitSpeed = ball.baseOrbitSpeed * fadeMultiplier
+		local verticalSpeed = ball.baseVerticalSpeed * fadeMultiplier
+
+		ball.angle += orbitSpeed * dt
+		ball.heightOffset += verticalSpeed * dt
+
+		-- New position
+		local x = math.cos(ball.angle) * ORBIT_RADIUS
+		local z = math.sin(ball.angle) * ORBIT_RADIUS
+		local y = math.sin(ball.heightOffset) * UP_DOWN_RANGE
+		local currentPos = root.Position + Vector3.new(x, y + 3, z)
+
+		part.Position = currentPos
+
+		-- Pull unanchored parts
+		local nearbyParts = getNearbyUnanchoredParts(currentPos, PULL_RADIUS)
+		for _, target in ipairs(nearbyParts) do
+			local direction = (currentPos - target.Position)
+			if direction.Magnitude == 0 then continue end
+
+			local bv = Instance.new("BodyVelocity")
+			bv.Velocity = direction.Unit * PULL_VELOCITY
+			bv.MaxForce = Vector3.new(PULL_FORCE, PULL_FORCE, PULL_FORCE)
+			bv.P = PULL_FORCE
+			bv.Name = "PullForce"
+			bv.Parent = target
+
+			Debris:AddItem(bv, 0.1)
+		end
+	end
+end)
