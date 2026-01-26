@@ -1,6 +1,6 @@
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
+ UserInputService = game:GetService("UserInputService")
 
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
@@ -198,7 +198,25 @@ local function setupAntiFling(enabled)
             if not character then return end
             
             local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-            if not humanoidRootPart then return end
+            local humanoid = character:FindFirstChild("Humanoid")
+            if not humanoidRootPart or not humanoid then return end
+            
+            humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
+            humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
+            
+            local floatPart = Instance.new("Part")
+            floatPart.Name = "FloatPart"
+            floatPart.Size = Vector3.new(4, 0.2, 4)
+            floatPart.Transparency = 1
+            floatPart.Anchored = true
+            floatPart.CanCollide = true
+            floatPart.Parent = workspace
+            
+            for _, part in pairs(character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = false
+                end
+            end
             
             connections.antiFling = RunService.Heartbeat:Connect(function()
                 if not antiFlingEnabled then return end
@@ -210,13 +228,23 @@ local function setupAntiFling(enabled)
                 if not hrp then return end
                 
                 if hrp.AssemblyLinearVelocity.Magnitude > 100 then
-                    hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+                    hrp.AssemblyLinearVelocity = Vector3.new(hrp.AssemblyLinearVelocity.X, 0, hrp.AssemblyLinearVelocity.Z)
                 end
                 
                 if hrp.AssemblyAngularVelocity.Magnitude > 10 then
                     hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
                 end
+                
+                floatPart.Position = hrp.Position - Vector3.new(0, 3.3, 0)
+                
+                for _, part in pairs(character:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = false
+                    end
+                end
             end)
+            
+            connections.floatPart = floatPart
         end
         
         protectCharacter()
@@ -230,6 +258,26 @@ local function setupAntiFling(enabled)
         if connections.antiFling then
             connections.antiFling:Disconnect()
             connections.antiFling = nil
+        end
+        
+        if connections.floatPart then
+            connections.floatPart:Destroy()
+            connections.floatPart = nil
+        end
+        
+        local character = LocalPlayer.Character
+        if character then
+            local humanoid = character:FindFirstChild("Humanoid")
+            if humanoid then
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, true)
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, true)
+            end
+            
+            for _, part in pairs(character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = true
+                end
+            end
         end
     end
 end
@@ -250,20 +298,19 @@ local function setupBlackhole(enabled)
             local playerPos = hrp.Position
             
             for _, obj in pairs(workspace:GetDescendants()) do
-                if obj:IsA("BasePart") and not obj:IsDescendantOf(character) and obj.Name ~= "Baseplate" and obj.Name ~= "Terrain" then
+                if obj:IsA("BasePart") and not obj:IsDescendantOf(character) and obj.Name ~= "Baseplate" and obj.Name ~= "Terrain" and obj.Name ~= "FloatPart" then
                     if not obj.Anchored and obj.Parent and obj.Parent ~= workspace then
                         local distance = (obj.Position - playerPos).Magnitude
                         
-                        if distance < 100 then
+                        if distance < 150 then
                             local direction = (playerPos - obj.Position).Unit
-                            local targetDistance = blackholeRadius
                             local currentDistance = (obj.Position - playerPos).Magnitude
                             
-                            if currentDistance > targetDistance then
-                                obj.AssemblyLinearVelocity = direction * 50
+                            if currentDistance > blackholeRadius then
+                                obj.AssemblyLinearVelocity = direction * 200
                             else
                                 local tangent = Vector3.new(-direction.Z, 0, direction.X).Unit
-                                obj.AssemblyLinearVelocity = tangent * 30 + direction * 5
+                                obj.AssemblyLinearVelocity = tangent * 80 + direction * 20
                             end
                         end
                     end
@@ -294,13 +341,13 @@ local function setupBlackholePlayer(enabled)
             local targetPos = targetHRP.Position
             
             for _, obj in pairs(workspace:GetDescendants()) do
-                if obj:IsA("BasePart") and not obj:IsDescendantOf(targetPlayer.Character) and obj.Name ~= "Baseplate" and obj.Name ~= "Terrain" then
+                if obj:IsA("BasePart") and not obj:IsDescendantOf(targetPlayer.Character) and obj.Name ~= "Baseplate" and obj.Name ~= "Terrain" and obj.Name ~= "FloatPart" then
                     if not obj.Anchored and obj.Parent and obj.Parent ~= workspace then
                         local distance = (obj.Position - targetPos).Magnitude
                         
-                        if distance < 100 then
+                        if distance < 150 then
                             local direction = (targetPos - obj.Position).Unit
-                            obj.AssemblyLinearVelocity = direction * 80
+                            obj.AssemblyLinearVelocity = direction * 250
                         end
                     end
                 end
@@ -377,7 +424,26 @@ CloseCorner.Parent = CloseButton
 CloseButton.MouseButton1Click:Connect(function()
     ScreenGui:Destroy()
     for _, conn in pairs(connections) do
-        if conn then conn:Disconnect() end
+        if conn and typeof(conn) == "RBXScriptConnection" then
+            conn:Disconnect()
+        elseif conn and typeof(conn) == "Instance" then
+            conn:Destroy()
+        end
+    end
+    
+    local character = LocalPlayer.Character
+    if character then
+        local humanoid = character:FindFirstChild("Humanoid")
+        if humanoid then
+            humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, true)
+            humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, true)
+        end
+        
+        for _, part in pairs(character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = true
+            end
+        end
     end
 end)
 
