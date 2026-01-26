@@ -1,4 +1,3 @@
-```lua
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
@@ -409,4 +408,3 @@ MinimizeButton.MouseButton1Click:Connect(function()
         MinimizeButton.Text = "−"
     end
 end)
-```
