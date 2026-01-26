@@ -157,6 +157,23 @@ end
 
 local playersListFrame = nil
 local selectedPlayerButton = nil
+local PlayersButtonText = "Players"
+
+local PlayersButton = Instance.new("TextButton")
+PlayersButton.Name = "PlayersButton"
+PlayersButton.Size = UDim2.new(1, -10, 0, 55)
+PlayersButton.Position = UDim2.new(0, 5, 0, 145)
+PlayersButton.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
+PlayersButton.BorderSizePixel = 0
+PlayersButton.Font = Enum.Font.GothamBold
+PlayersButton.Text = PlayersButtonText
+PlayersButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+PlayersButton.TextSize = 16
+PlayersButton.Parent = ScrollFrame
+
+local PlayersButtonCorner = Instance.new("UICorner")
+PlayersButtonCorner.CornerRadius = UDim.new(0, 10)
+PlayersButtonCorner.Parent = PlayersButton
 
 local function openPlayersList()
     if playersListFrame and playersListFrame.Parent then
@@ -177,8 +194,7 @@ local function openPlayersList()
 
     local listTitle = Instance.new("TextLabel")
     listTitle.Size = UDim2.new(1, 0, 0, 40)
-    listTitle.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
-    listTitle.Text = "Select Player"
+    listTitle.BackgroundColor3 = Color3.fromRGB(40, 40, 55)    listTitle.Text = "Select Player"
     listTitle.Font = Enum.Font.GothamBold
     listTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
     listTitle.TextSize = 16
@@ -194,7 +210,8 @@ local function openPlayersList()
     listScroll.BackgroundTransparency = 1
     listScroll.BorderSizePixel = 0
     listScroll.ScrollBarThickness = 4
-    listScroll.CanvasSize = UDim2.new(0, 0, 0, 0)    listScroll.Parent = playersListFrame
+    listScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+    listScroll.Parent = playersListFrame
 
     local function refreshPlayerList()
         for _, child in ipairs(listScroll:GetChildren()) do
@@ -209,7 +226,7 @@ local function openPlayersList()
                 local btn = Instance.new("TextButton")
                 btn.Size = UDim2.new(1, -10, 0, 40)
                 btn.Position = UDim2.new(0, 5, 0, y)
-                btn.BackgroundColor3 = if selectedPlayerButton == btn then Color3.fromRGB(50, 80, 50) else Color3.fromRGB(50, 50, 70)
+                btn.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
                 btn.Text = player.Name
                 btn.Font = Enum.Font.GothamSemibold
                 btn.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -221,13 +238,12 @@ local function openPlayersList()
                 btnCorner.Parent = btn
 
                 btn.MouseButton1Click:Connect(function()
-                    if selectedPlayerButton then
-                        selectedPlayerButton.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
-                    end
-                    selectedPlayerButton = btn
-                    btn.BackgroundColor3 = Color3.fromRGB(50, 80, 50)
                     targetPlayerName = player.Name
-                end)
+                    PlayersButton.Text = "Selected: " .. targetPlayerName
+                    if playersListFrame then
+                        playersListFrame:Destroy()
+                        playersListFrame = nil
+                    end                end)
 
                 y += 45
             end
@@ -243,7 +259,8 @@ local function openPlayersList()
     local closeButton = Instance.new("TextButton")
     closeButton.Size = UDim2.new(0, 30, 0, 30)
     closeButton.Position = UDim2.new(1, -35, 0, 5)
-    closeButton.BackgroundColor3 = Color3.fromRGB(200, 60, 60)    closeButton.Text = "X"
+    closeButton.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+    closeButton.Text = "X"
     closeButton.Font = Enum.Font.GothamBold
     closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     closeButton.TextSize = 16
@@ -263,117 +280,7 @@ local function openPlayersList()
     end)
 end
 
-local PlayersButton = Instance.new("TextButton")
-PlayersButton.Name = "PlayersButton"
-PlayersButton.Size = UDim2.new(1, -10, 0, 55)
-PlayersButton.Position = UDim2.new(0, 5, 0, 145)
-PlayersButton.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
-PlayersButton.BorderSizePixel = 0
-PlayersButton.Font = Enum.Font.GothamBold
-PlayersButton.Text = "Players"
-PlayersButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-PlayersButton.TextSize = 16
-PlayersButton.Parent = ScrollFrame
-
-local PlayersButtonCorner = Instance.new("UICorner")
-PlayersButtonCorner.CornerRadius = UDim.new(0, 10)
-PlayersButtonCorner.Parent = PlayersButton
-
 PlayersButton.MouseButton1Click:Connect(openPlayersList)
-
-createToggleButton("AntiFling", "Anti-Fling", UDim2.new(0, 5, 0, 5), setupAntiFling)
-
-local Spacer1 = Instance.new("Frame")
-Spacer1.Size = UDim2.new(1, 0, 0, 10)
-Spacer1.Position = UDim2.new(0, 0, 0, 65)
-Spacer1.BackgroundTransparency = 1
-Spacer1.Parent = ScrollFrame
-
-createToggleButton("Blackhole", "Blackhole (Voce)", UDim2.new(0, 5, 0, 75), setupBlackhole)
-
-local Spacer2 = Instance.new("Frame")
-Spacer2.Size = UDim2.new(1, 0, 0, 10)Spacer2.Position = UDim2.new(0, 0, 0, 135)
-Spacer2.BackgroundTransparency = 1
-Spacer2.Parent = ScrollFrame
-
-local Spacer3 = Instance.new("Frame")
-Spacer3.Size = UDim2.new(1, 0, 0, 10)
-Spacer3.Position = UDim2.new(0, 0, 0, 205)
-Spacer3.BackgroundTransparency = 1
-Spacer3.Parent = ScrollFrame
-
-createToggleButton("BlackholePlayer", "Blackhole Player", UDim2.new(0, 5, 0, 215), setupBlackholePlayer)
-
-ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 280)
-
-local CloseButton = Instance.new("TextButton")
-CloseButton.Name = "CloseButton"
-CloseButton.Size = UDim2.new(0, 40, 0, 40)
-CloseButton.Position = UDim2.new(1, -45, 0, 5)
-CloseButton.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
-CloseButton.BorderSizePixel = 0
-CloseButton.Font = Enum.Font.GothamBold
-CloseButton.Text = "X"
-CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-CloseButton.TextSize = 20
-CloseButton.Parent = MainFrame
-
-local CloseCorner = Instance.new("UICorner")
-CloseCorner.CornerRadius = UDim.new(0, 10)
-CloseCorner.Parent = CloseButton
-
-CloseButton.MouseButton1Click:Connect(function()
-    ScreenGui:Destroy()
-    for _, conn in pairs(connections) do
-        if conn and typeof(conn) == "RBXScriptConnection" then
-            conn:Disconnect()
-        elseif conn and typeof(conn) == "Instance" then
-            conn:Destroy()
-        end
-    end
-    
-    local character = LocalPlayer.Character
-    if character then
-        local humanoid = character:FindFirstChild("Humanoid")
-        if humanoid then
-            humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, true)
-            humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, true)
-        end
-        
-        for _, part in pairs(character:GetDescendants()) do
-            if part:IsA("BasePart") then                part.CanCollide = true
-            end
-        end
-    end
-end)
-
-local MinimizeButton = Instance.new("TextButton")
-MinimizeButton.Name = "MinimizeButton"
-MinimizeButton.Size = UDim2.new(0, 40, 0, 40)
-MinimizeButton.Position = UDim2.new(1, -90, 0, 5)
-MinimizeButton.BackgroundColor3 = Color3.fromRGB(100, 150, 255)
-MinimizeButton.BorderSizePixel = 0
-MinimizeButton.Font = Enum.Font.GothamBold
-MinimizeButton.Text = "-"
-MinimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-MinimizeButton.TextSize = 24
-MinimizeButton.Parent = MainFrame
-
-local MinCorner = Instance.new("UICorner")
-MinCorner.CornerRadius = UDim.new(0, 10)
-MinCorner.Parent = MinimizeButton
-
-local isMinimized = false
-MinimizeButton.MouseButton1Click:Connect(function()
-    isMinimized = not isMinimized
-    if isMinimized then
-        MainFrame:TweenSize(UDim2.new(0, 320, 0, 50), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.3, true)
-        MinimizeButton.Text = "+"
-    else
-        MainFrame:TweenSize(UDim2.new(0, 320, 0, 450), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.3, true)
-        MinimizeButton.Text = "-"
-    end
-end)
 
 function setupAntiFling(enabled)
     antiFlingEnabled = enabled
@@ -385,12 +292,12 @@ function setupAntiFling(enabled)
             
             local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
             local humanoid = character:FindFirstChild("Humanoid")
-            if not humanoidRootPart or not humanoid then return end
-            
+            if not humanoidRootPart or not humanoid then return end            
             humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
             humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
             
-            local floatPart = Instance.new("Part")            floatPart.Name = "FloatPart"
+            local floatPart = Instance.new("Part")
+            floatPart.Name = "FloatPart"
             floatPart.Size = Vector3.new(4, 0.2, 4)
             floatPart.Transparency = 1
             floatPart.Anchored = true
@@ -434,12 +341,12 @@ function setupAntiFling(enabled)
         
         protectCharacter()
         LocalPlayer.CharacterAdded:Connect(function()
-            if antiFlingEnabled then
-                wait(0.5)
+            if antiFlingEnabled then                wait(0.5)
                 protectCharacter()
             end
         end)
-    else        if connections.antiFling then
+    else
+        if connections.antiFling then
             connections.antiFling:Disconnect()
             connections.antiFling = nil
         end
@@ -483,12 +390,12 @@ function setupBlackhole(enabled)
             
             for _, obj in pairs(workspace:GetDescendants()) do
                 if obj:IsA("BasePart") and not obj:IsDescendantOf(character) and obj.Name ~= "Baseplate" and obj.Name ~= "Terrain" and obj.Name ~= "FloatPart" then
-                    if not obj.Anchored and obj.Parent and obj.Parent ~= workspace then
-                        local distance = (obj.Position - playerPos).Magnitude
+                    if not obj.Anchored and obj.Parent and obj.Parent ~= workspace then                        local distance = (obj.Position - playerPos).Magnitude
                         
                         if distance < 150 then
                             local direction = (playerPos - obj.Position).Unit
-                            local currentDistance = (obj.Position - playerPos).Magnitude                            
+                            local currentDistance = (obj.Position - playerPos).Magnitude
+                            
                             if currentDistance > blackholeRadius then
                                 obj.AssemblyLinearVelocity = direction * 200
                             else
@@ -532,13 +439,107 @@ function setupBlackholePlayer(enabled)
                             local direction = (targetPos - obj.Position).Unit
                             obj.AssemblyLinearVelocity = direction * 250
                         end
-                    end
-                end
+                    end                end
             end
         end)
     else
-        if connections.blackholePlayer then            connections.blackholePlayer:Disconnect()
+        if connections.blackholePlayer then
+            connections.blackholePlayer:Disconnect()
             connections.blackholePlayer = nil
         end
     end
 end
+
+createToggleButton("AntiFling", "Anti-Fling", UDim2.new(0, 5, 0, 5), setupAntiFling)
+
+local Spacer1 = Instance.new("Frame")
+Spacer1.Size = UDim2.new(1, 0, 0, 10)
+Spacer1.Position = UDim2.new(0, 0, 0, 65)
+Spacer1.BackgroundTransparency = 1
+Spacer1.Parent = ScrollFrame
+
+createToggleButton("Blackhole", "Blackhole (Voce)", UDim2.new(0, 5, 0, 75), setupBlackhole)
+
+local Spacer2 = Instance.new("Frame")
+Spacer2.Size = UDim2.new(1, 0, 0, 10)
+Spacer2.Position = UDim2.new(0, 0, 0, 135)
+Spacer2.BackgroundTransparency = 1
+Spacer2.Parent = ScrollFrame
+
+local Spacer3 = Instance.new("Frame")
+Spacer3.Size = UDim2.new(1, 0, 0, 10)
+Spacer3.Position = UDim2.new(0, 0, 0, 205)
+Spacer3.BackgroundTransparency = 1
+Spacer3.Parent = ScrollFrame
+
+createToggleButton("BlackholePlayer", "Blackhole Player", UDim2.new(0, 5, 0, 215), setupBlackholePlayer)
+
+ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 280)
+
+local CloseButton = Instance.new("TextButton")
+CloseButton.Name = "CloseButton"
+CloseButton.Size = UDim2.new(0, 40, 0, 40)
+CloseButton.Position = UDim2.new(1, -45, 0, 5)
+CloseButton.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
+CloseButton.BorderSizePixel = 0
+CloseButton.Font = Enum.Font.GothamBold
+CloseButton.Text = "X"
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.TextSize = 20
+CloseButton.Parent = MainFrame
+
+local CloseCorner = Instance.new("UICorner")CloseCorner.CornerRadius = UDim.new(0, 10)
+CloseCorner.Parent = CloseButton
+
+CloseButton.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+    for _, conn in pairs(connections) do
+        if conn and typeof(conn) == "RBXScriptConnection" then
+            conn:Disconnect()
+        elseif conn and typeof(conn) == "Instance" then
+            conn:Destroy()
+        end
+    end
+    
+    local character = LocalPlayer.Character
+    if character then
+        local humanoid = character:FindFirstChild("Humanoid")
+        if humanoid then
+            humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, true)
+            humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, true)
+        end
+        
+        for _, part in pairs(character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = true
+            end
+        end
+    end
+end)
+
+local MinimizeButton = Instance.new("TextButton")
+MinimizeButton.Name = "MinimizeButton"
+MinimizeButton.Size = UDim2.new(0, 40, 0, 40)
+MinimizeButton.Position = UDim2.new(1, -90, 0, 5)
+MinimizeButton.BackgroundColor3 = Color3.fromRGB(100, 150, 255)
+MinimizeButton.BorderSizePixel = 0
+MinimizeButton.Font = Enum.Font.GothamBold
+MinimizeButton.Text = "-"
+MinimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+MinimizeButton.TextSize = 24
+MinimizeButton.Parent = MainFrame
+
+local MinCorner = Instance.new("UICorner")
+MinCorner.CornerRadius = UDim.new(0, 10)
+MinCorner.Parent = MinimizeButton
+
+local isMinimized = false
+MinimizeButton.MouseButton1Click:Connect(function()
+    isMinimized = not isMinimized
+    if isMinimized then
+        MainFrame:TweenSize(UDim2.new(0, 320, 0, 50), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.3, true)        MinimizeButton.Text = "+"
+    else
+        MainFrame:TweenSize(UDim2.new(0, 320, 0, 450), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.3, true)
+        MinimizeButton.Text = "-"
+    end
+end)
