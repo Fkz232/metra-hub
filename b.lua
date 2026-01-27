@@ -33,15 +33,16 @@ local settings = {
     healthCheck = true,
     minHealth = 1,
     maxDistance = 5000,
-    aimKey = Enum.UserInputType.MouseButton2
+    aimKey = Enum.UserInputType.MouseButton2,
+    aimAssist = true
 }
 
 local currentTarget = nil
 local lockedTarget = nil
 local fovCircle = nil
 local targetConnection = nil
-local shootConnection = nil
-local strafeAngle = 0
+local aimConnection = nil
+local rainbowHue = 0
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "AimbotHub"
@@ -115,6 +116,14 @@ local TitleCorner = Instance.new("UICorner")
 TitleCorner.CornerRadius = UDim.new(0, 15)
 TitleCorner.Parent = Title
 
+RunService.RenderStepped:Connect(function()
+    rainbowHue = rainbowHue + 0.005
+    if rainbowHue >= 1 then
+        rainbowHue = 0
+    end
+    Title.TextColor3 = Color3.fromHSV(rainbowHue, 1, 1)
+end)
+
 local ScrollFrame = Instance.new("ScrollingFrame")
 ScrollFrame.Name = "ScrollFrame"
 ScrollFrame.Size = UDim2.new(1, -20, 1, -80)
@@ -125,6 +134,10 @@ ScrollFrame.ScrollBarThickness = 4
 ScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(0, 255, 170)
 ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 2000)
 ScrollFrame.Parent = MainFrame
+
+RunService.RenderStepped:Connect(function()
+    ScrollFrame.ScrollBarImageColor3 = Color3.fromHSV(rainbowHue, 1, 1)
+end)
 
 local currentY = 5
 
@@ -169,10 +182,28 @@ local function createToggle(name, text, defaultValue, callback)
     
     local isEnabled = defaultValue
     
+    if defaultValue then
+        RunService.RenderStepped:Connect(function()
+            if isEnabled then
+                ToggleButton.BackgroundColor3 = Color3.fromHSV(rainbowHue, 1, 1)
+            end
+        end)
+    end
+    
     ToggleButton.MouseButton1Click:Connect(function()
         isEnabled = not isEnabled
-        ToggleButton.BackgroundColor3 = isEnabled and Color3.fromRGB(0, 255, 170) or Color3.fromRGB(60, 60, 75)
         ToggleButton.Text = isEnabled and "ON" or "OFF"
+        
+        if isEnabled then
+            RunService.RenderStepped:Connect(function()
+                if isEnabled then
+                    ToggleButton.BackgroundColor3 = Color3.fromHSV(rainbowHue, 1, 1)
+                end
+            end)
+        else
+            ToggleButton.BackgroundColor3 = Color3.fromRGB(60, 60, 75)
+        end
+        
         callback(isEnabled)
     end)
     
@@ -224,6 +255,10 @@ local function createSlider(name, text, minValue, maxValue, defaultValue, callba
     local FillCorner = Instance.new("UICorner")
     FillCorner.CornerRadius = UDim.new(1, 0)
     FillCorner.Parent = SliderFill
+    
+    RunService.RenderStepped:Connect(function()
+        SliderFill.BackgroundColor3 = Color3.fromHSV(rainbowHue, 1, 1)
+    end)
     
     local SliderButton = Instance.new("TextButton")
     SliderButton.Size = UDim2.new(0, 20, 0, 20)
@@ -394,12 +429,7 @@ local function createFOVCircle()
             fovCircle.Radius = settings.fov
             fovCircle.Visible = settings.showFOV
             
-            if settings.rainbowFOV then
-                local hue = tick() % 5 / 5
-                fovCircle.Color = Color3.fromHSV(hue, 1, 1)
-            else
-                fovCircle.Color = Color3.fromRGB(0, 255, 170)
-            end
+            fovCircle.Color = Color3.fromHSV(rainbowHue, 1, 1)
             
             if settings.shakeFOV then
                 local shake = math.sin(tick() * 10) * 5
@@ -410,7 +440,7 @@ local function createFOVCircle()
 end
 
 local function isVisible(target)
-    if not settings.visibilityCheck then return true end
+    if not settings.visibilityCheck or settings.ignoreWalls then return true end
     
     local character = LocalPlayer.Character
     if not character then return false end
@@ -423,16 +453,9 @@ local function isVisible(target)
     raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
     raycastParams.IgnoreWater = true
     
-    local direction = target.Position - origin.Position
-    local result = workspace:Raycast(origin.Position, direction, raycastParams)
+    local result = workspace:Raycast(origin.Position, (target.Position - origin.Position), raycastParams)
     
-    if settings.ignoreWalls then return true end
-    
-    if result == nil then
-        return true
-    end
-    
-    return result.Instance == target or result.Instance:IsDescendantOf(target.Parent)
+    return result == nil or result.Instance:IsDescendantOf(target.Parent)
 end
 
 local function getClosestPlayerToCursor()
@@ -444,7 +467,7 @@ local function getClosestPlayerToCursor()
         if player ~= LocalPlayer then
             local character = player.Character
             if character then
-                if settings.teamCheck and player.Team == LocalPlayer.Team then
+                if settings.teamCheck and player.Team and LocalPlayer.Team and player.Team == LocalPlayer.Team then
                     continue
                 end
                 
@@ -456,7 +479,10 @@ local function getClosestPlayerToCursor()
                     
                     local targetPart = character:FindFirstChild(settings.targetPart)
                     if targetPart then
-                        local distance = (targetPart.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+                        local myChar = LocalPlayer.Character
+                        if not myChar or not myChar:FindFirstChild("HumanoidRootPart") then continue end
+                        
+                        local distance = (targetPart.Position - myChar.HumanoidRootPart.Position).Magnitude
                         
                         if distance > settings.maxDistance then
                             continue
@@ -483,13 +509,27 @@ local function getClosestPlayerToCursor()
     return closestPlayer
 end
 
+local strafeAngle = 0
+
 local function aimAt(target)
-    if not target or not target.Character then return end
+    if not target or not target.Character then 
+        currentTarget = nil
+        return 
+    end
     
     local character = target.Character
     local targetPart = character:FindFirstChild(settings.targetPart)
     
-    if not targetPart then return end
+    if not targetPart then 
+        currentTarget = nil
+        return 
+    end
+    
+    local humanoid = character:FindFirstChild("Humanoid")
+    if not humanoid or humanoid.Health <= 0 then
+        currentTarget = nil
+        return
+    end
     
     local targetPos = targetPart.Position
     
@@ -509,7 +549,7 @@ local function aimAt(target)
     end
     
     local currentCFrame = Camera.CFrame
-    local targetCFrame = CFrame.new(currentCFrame.Position, targetPos)
+    local targetCFrame = CFrame.new(Camera.CFrame.Position, targetPos)
     
     if settings.snapOnTarget then
         Camera.CFrame = targetCFrame
@@ -536,44 +576,50 @@ local function notifyTarget(playerName)
     corner.CornerRadius = UDim.new(0, 10)
     corner.Parent = notification
     
-    task.delay(2, function()
-        notification:Destroy()
+    task.spawn(function()
+        for i = 1, 60 do
+            wait(0.033)
+            if notification then
+                notification.BackgroundColor3 = Color3.fromHSV(rainbowHue, 1, 1)
+            end
+        end
+        if notification then
+            notification:Destroy()
+        end
     end)
 end
 
+local isAiming = false
+
 UserInputService.InputBegan:Connect(function(input)
-    if input.UserInputType == settings.aimKey then
-        if settings.lockTarget and lockedTarget then
+    if input.UserInputType == settings.aimKey or input.KeyCode == Enum.KeyCode.E then
+        isAiming = true
+        
+        if settings.lockTarget and lockedTarget and lockedTarget.Character and lockedTarget.Character:FindFirstChild("Humanoid") and lockedTarget.Character.Humanoid.Health > 0 then
             currentTarget = lockedTarget
         else
             currentTarget = getClosestPlayerToCursor()
             
             if settings.lockTarget and currentTarget then
                 lockedTarget = currentTarget
-                if settings.targetNotify then
-                    notifyTarget(currentTarget.Name)
-                end
+                notifyTarget(currentTarget.Name)
             end
         end
         
-        if currentTarget and settings.enabled then
-            if targetConnection then
-                targetConnection:Disconnect()
-            end
-            
-            targetConnection = RunService.RenderStepped:Connect(function()
-                if settings.enabled and currentTarget and currentTarget.Character then
-                    aimAt(currentTarget)
+        if not aimConnection then
+            aimConnection = RunService.RenderStepped:Connect(function()
+                if settings.enabled and isAiming and currentTarget then
+                    local target = currentTarget
                     
-                    if settings.autoShoot then
-                        mouse1press()
-                        task.wait()
-                        mouse1release()
+                    if not target or not target.Character or not target.Character:FindFirstChild("Humanoid") or target.Character.Humanoid.Health <= 0 then
+                        currentTarget = getClosestPlayerToCursor()
+                        if not settings.lockTarget then
+                            lockedTarget = nil
+                        end
                     end
-                else
-                    if targetConnection then
-                        targetConnection:Disconnect()
-                        targetConnection = nil
+                    
+                    if currentTarget then
+                        aimAt(currentTarget)
                     end
                 end
             end)
@@ -582,15 +628,12 @@ UserInputService.InputBegan:Connect(function(input)
 end)
 
 UserInputService.InputEnded:Connect(function(input)
-    if input.UserInputType == settings.aimKey then
+    if input.UserInputType == settings.aimKey or input.KeyCode == Enum.KeyCode.E then
+        isAiming = false
+        
         if not settings.lockTarget then
             currentTarget = nil
             lockedTarget = nil
-        end
-        
-        if targetConnection then
-            targetConnection:Disconnect()
-            targetConnection = nil
         end
     end
 end)
@@ -642,10 +685,6 @@ createToggle("IgnoreWalls", "Ignorar Paredes", false, function(value)
     settings.ignoreWalls = value
 end)
 
-createToggle("AutoShoot", "Atirar Automatico", false, function(value)
-    settings.autoShoot = value
-end)
-
 createToggle("SnapOnTarget", "Snap Instantaneo", false, function(value)
     settings.snapOnTarget = value
 end)
@@ -656,10 +695,6 @@ end)
 
 createSlider("StrafeSpeed", "Velocidade Circular", 1, 20, 5, function(value)
     settings.strafeSpeed = value
-end)
-
-createToggle("RainbowFOV", "FOV Arco-iris", false, function(value)
-    settings.rainbowFOV = value
 end)
 
 createToggle("ShakeFOV", "FOV Tremendo", false, function(value)
@@ -704,8 +739,8 @@ CloseButton.MouseButton1Click:Connect(function()
     if fovCircle then
         fovCircle:Remove()
     end
-    if targetConnection then
-        targetConnection:Disconnect()
+    if aimConnection then
+        aimConnection:Disconnect()
     end
 end)
 
@@ -723,6 +758,10 @@ MinButton.Parent = MainFrame
 local MinCorner = Instance.new("UICorner")
 MinCorner.CornerRadius = UDim.new(0, 10)
 MinCorner.Parent = MinButton
+
+RunService.RenderStepped:Connect(function()
+    MinButton.BackgroundColor3 = Color3.fromHSV(rainbowHue, 1, 1)
+end)
 
 local isMinimized = false
 MinButton.MouseButton1Click:Connect(function()
