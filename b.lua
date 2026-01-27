@@ -423,11 +423,16 @@ local function isVisible(target)
     raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
     raycastParams.IgnoreWater = true
     
-    local result = workspace:Raycast(origin.Position, (target.Position - origin.Position), raycastParams)
+    local direction = target.Position - origin.Position
+    local result = workspace:Raycast(origin.Position, direction, raycastParams)
     
     if settings.ignoreWalls then return true end
     
-    return result == nil or result.Instance:IsDescendantOf(target.Parent)
+    if result == nil then
+        return true
+    end
+    
+    return result.Instance == target or result.Instance:IsDescendantOf(target.Parent)
 end
 
 local function getClosestPlayerToCursor()
@@ -504,7 +509,7 @@ local function aimAt(target)
     end
     
     local currentCFrame = Camera.CFrame
-    local targetCFrame = CFrame.new(Camera.CFrame.Position, targetPos)
+    local targetCFrame = CFrame.new(currentCFrame.Position, targetPos)
     
     if settings.snapOnTarget then
         Camera.CFrame = targetCFrame
@@ -557,13 +562,18 @@ UserInputService.InputBegan:Connect(function(input)
             end
             
             targetConnection = RunService.RenderStepped:Connect(function()
-                if settings.enabled and currentTarget then
+                if settings.enabled and currentTarget and currentTarget.Character then
                     aimAt(currentTarget)
                     
                     if settings.autoShoot then
                         mouse1press()
                         task.wait()
                         mouse1release()
+                    end
+                else
+                    if targetConnection then
+                        targetConnection:Disconnect()
+                        targetConnection = nil
                     end
                 end
             end)
