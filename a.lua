@@ -6,12 +6,20 @@ local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
 local antiFlingEnabled = false
-local blackholeEnabled = false
+local blackholeSelfEnabled = false
 local blackholePlayerEnabled = false
 local targetPlayer = nil
-local blackholeRadius = 100
-local blackholeSelfForce = 300
+
+local blackholeSelfForce = 500
+local blackholeSelfOrbitSpeed = 200
+local blackholeSelfDistance = 100
+local blackholeSelfPullDistance = 1000
+
 local blackholePlayerForce = 500
+local blackholePlayerOrbitSpeed = 200
+local blackholePlayerDistance = 100
+local blackholePlayerPullDistance = 1000
+
 local connections = {}
 local originalCanCollide = {}
 
@@ -506,12 +514,12 @@ local function setupAntiFling(enabled)
     end
 end
 
-local function setupBlackhole(enabled)
-    blackholeEnabled = enabled
+local function setupBlackholeSelf(enabled)
+    blackholeSelfEnabled = enabled
     
     if enabled then
-        connections.blackhole = RunService.Heartbeat:Connect(function()
-            if not blackholeEnabled then return end
+        connections.blackholeSelf = RunService.Heartbeat:Connect(function()
+            if not blackholeSelfEnabled then return end
             
             local character = LocalPlayer.Character
             if not character then return end
@@ -523,18 +531,18 @@ local function setupBlackhole(enabled)
             
             for _, obj in pairs(workspace:GetDescendants()) do
                 if obj:IsA("BasePart") and not obj:IsDescendantOf(character) and obj.Name ~= "Baseplate" and obj.Name ~= "Terrain" and obj.Name ~= "FloatPart" then
-                    if not obj.Anchored and obj.Parent and obj.Parent ~= workspace then
+                    if not obj.Anchored then
                         local distance = (obj.Position - playerPos).Magnitude
                         
-                        if distance < 500 then
+                        if distance < blackholeSelfPullDistance then
                             local direction = (playerPos - obj.Position).Unit
                             local currentDistance = (obj.Position - playerPos).Magnitude
                             
-                            if currentDistance > blackholeRadius then
+                            if currentDistance > blackholeSelfDistance then
                                 obj.AssemblyLinearVelocity = direction * blackholeSelfForce
                             else
                                 local tangent = Vector3.new(-direction.Z, 0, direction.X).Unit
-                                obj.AssemblyLinearVelocity = tangent * (blackholeSelfForce * 0.4) + direction * (blackholeSelfForce * 0.13)
+                                obj.AssemblyLinearVelocity = tangent * blackholeSelfOrbitSpeed + direction * (blackholeSelfForce * 0.1)
                             end
                         end
                     end
@@ -542,9 +550,9 @@ local function setupBlackhole(enabled)
             end
         end)
     else
-        if connections.blackhole then
-            connections.blackhole:Disconnect()
-            connections.blackhole = nil
+        if connections.blackholeSelf then
+            connections.blackholeSelf:Disconnect()
+            connections.blackholeSelf = nil
         end
     end
 end
@@ -568,19 +576,19 @@ local function setupBlackholePlayer(enabled)
             
             for _, obj in pairs(workspace:GetDescendants()) do
                 if obj:IsA("BasePart") and obj.Name ~= "Baseplate" and obj.Name ~= "Terrain" and obj.Name ~= "FloatPart" then
-                    if not obj.Anchored and obj.Parent and obj.Parent ~= workspace then
+                    if not obj.Anchored then
                         if not obj:IsDescendantOf(targetPlayer.Character) and not (myCharacter and obj:IsDescendantOf(myCharacter)) then
                             local distance = (obj.Position - targetPos).Magnitude
                             
-                            if distance < 1000 then
+                            if distance < blackholePlayerPullDistance then
                                 local direction = (targetPos - obj.Position).Unit
                                 local currentDistance = (obj.Position - targetPos).Magnitude
                                 
-                                if currentDistance > blackholeRadius then
+                                if currentDistance > blackholePlayerDistance then
                                     obj.AssemblyLinearVelocity = direction * blackholePlayerForce
                                 else
                                     local tangent = Vector3.new(-direction.Z, 0, direction.X).Unit
-                                    obj.AssemblyLinearVelocity = tangent * (blackholePlayerForce * 0.3) + direction * (blackholePlayerForce * 0.1)
+                                    obj.AssemblyLinearVelocity = tangent * blackholePlayerOrbitSpeed + direction * (blackholePlayerForce * 0.1)
                                 end
                             end
                         end
@@ -650,10 +658,19 @@ end
 
 createToggleButton("AntiFling", "Anti-Fling", setupAntiFling)
 createSpacer(10)
-createToggleButton("Blackhole", "Blackhole (Voce)", setupBlackhole)
+createToggleButton("BlackholeSelf", "Blackhole (Voce)", setupBlackholeSelf)
 createSpacer(10)
-createSlider("BlackholeSelfForce", "Forca Blackhole (Voce)", 100, 1000, 300, function(value)
+createSlider("BlackholeSelfForce", "Forca Blackhole (Voce)", 100, 1000, 500, function(value)
     blackholeSelfForce = value
+end)
+createSlider("BlackholeSelfOrbit", "Velocidade (Voce)", 50, 500, 200, function(value)
+    blackholeSelfOrbitSpeed = value
+end)
+createSlider("BlackholeSelfDistance", "Distancia (Voce)", 20, 300, 100, function(value)
+    blackholeSelfDistance = value
+end)
+createSlider("BlackholeSelfPullDistance", "Distancia Puxar (Voce)", 100, 2000, 1000, function(value)
+    blackholeSelfPullDistance = value
 end)
 createSpacer(10)
 createLabel("Blackhole Player:")
@@ -686,6 +703,15 @@ createToggleButton("BlackholePlayer", "Blackhole Player", setupBlackholePlayer)
 createSpacer(10)
 createSlider("BlackholePlayerForce", "Forca Blackhole Player", 100, 1000, 500, function(value)
     blackholePlayerForce = value
+end)
+createSlider("BlackholePlayerOrbit", "Velocidade Player", 50, 500, 200, function(value)
+    blackholePlayerOrbitSpeed = value
+end)
+createSlider("BlackholePlayerDistance", "Distancia Player", 20, 300, 100, function(value)
+    blackholePlayerDistance = value
+end)
+createSlider("BlackholePlayerPullDistance", "Distancia Puxar Player", 100, 2000, 1000, function(value)
+    blackholePlayerPullDistance = value
 end)
 createSpacer(10)
 createButton("Emotes", "Emotes", function()
