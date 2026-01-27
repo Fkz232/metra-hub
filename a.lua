@@ -717,6 +717,9 @@ createSpacer(10)
 createButton("Emotes", "Emotes", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/7yd7/Hub/refs/heads/Branch/GUIS/Emotes.lua"))()
 end)
+createButton("Aimbot", "Aimbot", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Fkz232/metra-hub/refs/heads/main/b.lua"))()
+end)
 
 ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, currentYPosition + 10)
 
