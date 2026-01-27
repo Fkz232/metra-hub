@@ -8,9 +8,10 @@ local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 local antiFlingEnabled = false
 local blackholeEnabled = false
 local blackholePlayerEnabled = false
-local targetPlayerName = ""
+local targetPlayer = nil
 local blackholeRadius = 15
 local connections = {}
+local originalCanCollide = {}
 
 local isMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
 
@@ -47,7 +48,8 @@ MainFrame.InputBegan:Connect(function(input)
             startPos = MainFrame.Position
             
             input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then                    dragging = false
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
                 end
             end)
         end
@@ -96,7 +98,51 @@ ScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(100, 100, 120)
 ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 400)
 ScrollFrame.Parent = MainFrame
 
-local function createToggleButton(name, text, position, callback)    local Button = Instance.new("TextButton")
+local PlayerListFrame = Instance.new("Frame")
+PlayerListFrame.Name = "PlayerListFrame"
+PlayerListFrame.Size = UDim2.new(0, 280, 0, 300)
+PlayerListFrame.Position = UDim2.new(0.5, -140, 0.5, -150)
+PlayerListFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+PlayerListFrame.BorderSizePixel = 0
+PlayerListFrame.Visible = false
+PlayerListFrame.ZIndex = 10
+PlayerListFrame.Parent = ScreenGui
+
+local PlayerListCorner = Instance.new("UICorner")
+PlayerListCorner.CornerRadius = UDim.new(0, 12)
+PlayerListCorner.Parent = PlayerListFrame
+
+local PlayerListTitle = Instance.new("TextLabel")
+PlayerListTitle.Size = UDim2.new(1, 0, 0, 40)
+PlayerListTitle.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
+PlayerListTitle.BorderSizePixel = 0
+PlayerListTitle.Font = Enum.Font.GothamBold
+PlayerListTitle.Text = "Selecione um Jogador"
+PlayerListTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+PlayerListTitle.TextSize = 16
+PlayerListTitle.Parent = PlayerListFrame
+
+local PlayerListTitleCorner = Instance.new("UICorner")
+PlayerListTitleCorner.CornerRadius = UDim.new(0, 12)
+PlayerListTitleCorner.Parent = PlayerListTitle
+
+local PlayerScrollFrame = Instance.new("ScrollingFrame")
+PlayerScrollFrame.Size = UDim2.new(1, -10, 1, -50)
+PlayerScrollFrame.Position = UDim2.new(0, 5, 0, 45)
+PlayerScrollFrame.BackgroundTransparency = 1
+PlayerScrollFrame.BorderSizePixel = 0
+PlayerScrollFrame.ScrollBarThickness = 4
+PlayerScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(100, 100, 120)
+PlayerScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+PlayerScrollFrame.Parent = PlayerListFrame
+
+local PlayerListLayout = Instance.new("UIListLayout")
+PlayerListLayout.SortOrder = Enum.SortOrder.Name
+PlayerListLayout.Padding = UDim.new(0, 5)
+PlayerListLayout.Parent = PlayerScrollFrame
+
+local function createToggleButton(name, text, position, callback)
+    local Button = Instance.new("TextButton")
     Button.Name = name
     Button.Size = UDim2.new(1, -10, 0, 55)
     Button.Position = position
@@ -142,10 +188,11 @@ local function createToggleButton(name, text, position, callback)    local Butto
     Button.MouseButton1Click:Connect(function()
         isEnabled = not isEnabled
         if isEnabled then
-            Button.Text = " " .. text .. ": ON"
+            Button.Text = text .. ": ON"
             Button.TextColor3 = Color3.fromRGB(85, 255, 85)
             Button.BackgroundColor3 = Color3.fromRGB(40, 70, 40)
-        else            Button.Text = " " .. text .. ": OFF"
+        else
+            Button.Text = text .. ": OFF"
             Button.TextColor3 = Color3.fromRGB(255, 85, 85)
             Button.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
         end
@@ -155,134 +202,7 @@ local function createToggleButton(name, text, position, callback)    local Butto
     return Button
 end
 
-local playersListFrame = nil
-local selectedPlayerButton = nil
-local PlayersButtonText = "Players"
-
-local PlayersButton = Instance.new("TextButton")
-PlayersButton.Name = "PlayersButton"
-PlayersButton.Size = UDim2.new(1, -10, 0, 55)
-PlayersButton.Position = UDim2.new(0, 5, 0, 145)
-PlayersButton.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
-PlayersButton.BorderSizePixel = 0
-PlayersButton.Font = Enum.Font.GothamBold
-PlayersButton.Text = PlayersButtonText
-PlayersButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-PlayersButton.TextSize = 16
-PlayersButton.Parent = ScrollFrame
-
-local PlayersButtonCorner = Instance.new("UICorner")
-PlayersButtonCorner.CornerRadius = UDim.new(0, 10)
-PlayersButtonCorner.Parent = PlayersButton
-
-local function openPlayersList()
-    if playersListFrame and playersListFrame.Parent then
-        playersListFrame:Destroy()
-    end
-
-    playersListFrame = Instance.new("Frame")
-    playersListFrame.Name = "PlayersList"
-    playersListFrame.Size = UDim2.new(0, 280, 0, 300)
-    playersListFrame.Position = UDim2.new(0.5, -140, 0.5, -150)
-    playersListFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
-    playersListFrame.BorderSizePixel = 0
-    playersListFrame.Parent = ScreenGui
-
-    local listCorner = Instance.new("UICorner")
-    listCorner.CornerRadius = UDim.new(0, 10)
-    listCorner.Parent = playersListFrame
-
-    local listTitle = Instance.new("TextLabel")
-    listTitle.Size = UDim2.new(1, 0, 0, 40)
-    listTitle.BackgroundColor3 = Color3.fromRGB(40, 40, 55)    listTitle.Text = "Select Player"
-    listTitle.Font = Enum.Font.GothamBold
-    listTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-    listTitle.TextSize = 16
-    listTitle.Parent = playersListFrame
-
-    local titleCorner = Instance.new("UICorner")
-    titleCorner.CornerRadius = UDim.new(0, 10)
-    titleCorner.Parent = listTitle
-
-    local listScroll = Instance.new("ScrollingFrame")
-    listScroll.Size = UDim2.new(1, -10, 1, -50)
-    listScroll.Position = UDim2.new(0, 5, 0, 45)
-    listScroll.BackgroundTransparency = 1
-    listScroll.BorderSizePixel = 0
-    listScroll.ScrollBarThickness = 4
-    listScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
-    listScroll.Parent = playersListFrame
-
-    local function refreshPlayerList()
-        for _, child in ipairs(listScroll:GetChildren()) do
-            if child:IsA("TextButton") then
-                child:Destroy()
-            end
-        end
-
-        local y = 0
-        for _, player in ipairs(Players:GetPlayers()) do
-            if player ~= LocalPlayer then
-                local btn = Instance.new("TextButton")
-                btn.Size = UDim2.new(1, -10, 0, 40)
-                btn.Position = UDim2.new(0, 5, 0, y)
-                btn.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
-                btn.Text = player.Name
-                btn.Font = Enum.Font.GothamSemibold
-                btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-                btn.TextSize = 14
-                btn.Parent = listScroll
-
-                local btnCorner = Instance.new("UICorner")
-                btnCorner.CornerRadius = UDim.new(0, 8)
-                btnCorner.Parent = btn
-
-                btn.MouseButton1Click:Connect(function()
-                    targetPlayerName = player.Name
-                    PlayersButton.Text = "Selected: " .. targetPlayerName
-                    if playersListFrame then
-                        playersListFrame:Destroy()
-                        playersListFrame = nil
-                    end                end)
-
-                y += 45
-            end
-        end
-        listScroll.CanvasSize = UDim2.new(0, 0, 0, y)
-    end
-
-    refreshPlayerList()
-    connections.playerListUpdate = RunService.Heartbeat:Connect(function()
-        refreshPlayerList()
-    end)
-
-    local closeButton = Instance.new("TextButton")
-    closeButton.Size = UDim2.new(0, 30, 0, 30)
-    closeButton.Position = UDim2.new(1, -35, 0, 5)
-    closeButton.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
-    closeButton.Text = "X"
-    closeButton.Font = Enum.Font.GothamBold
-    closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    closeButton.TextSize = 16
-    closeButton.Parent = playersListFrame
-
-    local closeCorner = Instance.new("UICorner")
-    closeCorner.CornerRadius = UDim.new(0, 6)
-    closeCorner.Parent = closeButton
-
-    closeButton.MouseButton1Click:Connect(function()
-        if connections.playerListUpdate then
-            connections.playerListUpdate:Disconnect()
-            connections.playerListUpdate = nil
-        end
-        playersListFrame:Destroy()
-        playersListFrame = nil
-    end)
-end
-
-PlayersButton.MouseButton1Click:Connect(openPlayersList)
-
-function setupAntiFling(enabled)
+local function setupAntiFling(enabled)
     antiFlingEnabled = enabled
     
     if enabled then
@@ -292,23 +212,27 @@ function setupAntiFling(enabled)
             
             local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
             local humanoid = character:FindFirstChild("Humanoid")
-            if not humanoidRootPart or not humanoid then return end            
+            if not humanoidRootPart or not humanoid then return end
+            
             humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
             humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
             
             local floatPart = Instance.new("Part")
             floatPart.Name = "FloatPart"
-            floatPart.Size = Vector3.new(4, 0.2, 4)
+            floatPart.Size = Vector3.new(5, 0.2, 5)
             floatPart.Transparency = 1
             floatPart.Anchored = true
-            floatPart.CanCollide = false
+            floatPart.CanCollide = true
             floatPart.Parent = workspace
             
             for _, part in pairs(character:GetDescendants()) do
                 if part:IsA("BasePart") then
+                    originalCanCollide[part] = part.CanCollide
                     part.CanCollide = false
                 end
             end
+            
+            local groundHeight = humanoidRootPart.Position.Y - 3
             
             connections.antiFling = RunService.Heartbeat:Connect(function()
                 if not antiFlingEnabled then return end
@@ -319,7 +243,27 @@ function setupAntiFling(enabled)
                 local hrp = character:FindFirstChild("HumanoidRootPart")
                 if not hrp then return end
                 
-                if hrp.AssemblyLinearVelocity.Magnitude > 100 then
+                local currentPos = hrp.Position
+                local targetHeight = groundHeight + 5.05
+                
+                local rayOrigin = Vector3.new(currentPos.X, currentPos.Y + 10, currentPos.Z)
+                local rayDirection = Vector3.new(0, -100, 0)
+                local raycastParams = RaycastParams.new()
+                raycastParams.FilterDescendantsInstances = {character, floatPart}
+                raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+                
+                local rayResult = workspace:Raycast(rayOrigin, rayDirection, raycastParams)
+                
+                if rayResult then
+                    groundHeight = rayResult.Position.Y
+                    targetHeight = groundHeight + 5.05
+                end
+                
+                if currentPos.Y < targetHeight - 0.1 or currentPos.Y > targetHeight + 0.1 then
+                    hrp.CFrame = CFrame.new(currentPos.X, targetHeight, currentPos.Z) * CFrame.Angles(0, (hrp.CFrame - hrp.Position).LookVector.Y, 0)
+                end
+                
+                if hrp.AssemblyLinearVelocity.Y > 5 or hrp.AssemblyLinearVelocity.Y < -5 then
                     hrp.AssemblyLinearVelocity = Vector3.new(hrp.AssemblyLinearVelocity.X, 0, hrp.AssemblyLinearVelocity.Z)
                 end
                 
@@ -327,10 +271,10 @@ function setupAntiFling(enabled)
                     hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
                 end
                 
-                floatPart.Position = hrp.Position - Vector3.new(0, 3.3, 0)
+                floatPart.CFrame = CFrame.new(currentPos.X, targetHeight - 2.6, currentPos.Z)
                 
                 for _, part in pairs(character:GetDescendants()) do
-                    if part:IsA("BasePart") then
+                    if part:IsA("BasePart") and part ~= floatPart then
                         part.CanCollide = false
                     end
                 end
@@ -341,7 +285,8 @@ function setupAntiFling(enabled)
         
         protectCharacter()
         LocalPlayer.CharacterAdded:Connect(function()
-            if antiFlingEnabled then                wait(0.5)
+            if antiFlingEnabled then
+                wait(0.5)
                 protectCharacter()
             end
         end)
@@ -364,16 +309,17 @@ function setupAntiFling(enabled)
                 humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, true)
             end
             
-            for _, part in pairs(character:GetDescendants()) do
-                if part:IsA("BasePart") then
-                    part.CanCollide = true
+            for part, canCollide in pairs(originalCanCollide) do
+                if part and part:IsDescendantOf(character) then
+                    part.CanCollide = canCollide
                 end
             end
+            originalCanCollide = {}
         end
     end
 end
 
-function setupBlackhole(enabled)
+local function setupBlackhole(enabled)
     blackholeEnabled = enabled
     
     if enabled then
@@ -390,7 +336,8 @@ function setupBlackhole(enabled)
             
             for _, obj in pairs(workspace:GetDescendants()) do
                 if obj:IsA("BasePart") and not obj:IsDescendantOf(character) and obj.Name ~= "Baseplate" and obj.Name ~= "Terrain" and obj.Name ~= "FloatPart" then
-                    if not obj.Anchored and obj.Parent and obj.Parent ~= workspace then                        local distance = (obj.Position - playerPos).Magnitude
+                    if not obj.Anchored and obj.Parent and obj.Parent ~= workspace then
+                        local distance = (obj.Position - playerPos).Magnitude
                         
                         if distance < 150 then
                             local direction = (playerPos - obj.Position).Unit
@@ -415,31 +362,39 @@ function setupBlackhole(enabled)
     end
 end
 
-function setupBlackholePlayer(enabled)
+local function setupBlackholePlayer(enabled)
     blackholePlayerEnabled = enabled
     
     if enabled then
         connections.blackholePlayer = RunService.Heartbeat:Connect(function()
-            if not blackholePlayerEnabled or targetPlayerName == "" then return end
+            if not blackholePlayerEnabled or not targetPlayer then return end
             
-            local targetPlayer = Players:FindFirstChild(targetPlayerName)
-            if not targetPlayer or not targetPlayer.Character then return end
+            if not targetPlayer.Character then return end
             
             local targetHRP = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
             if not targetHRP then return end
             
             local targetPos = targetHRP.Position
             
+            local myCharacter = LocalPlayer.Character
+            local myHRP = myCharacter and myCharacter:FindFirstChild("HumanoidRootPart")
+            
             for _, obj in pairs(workspace:GetDescendants()) do
-                if obj:IsA("BasePart") and not obj:IsDescendantOf(targetPlayer.Character) and not obj:IsDescendantOf(LocalPlayer.Character) and obj.Name ~= "Baseplate" and obj.Name ~= "Terrain" and obj.Name ~= "FloatPart" then
+                if obj:IsA("BasePart") and not obj:IsDescendantOf(targetPlayer.Character) and not obj:IsDescendantOf(myCharacter) and obj.Name ~= "Baseplate" and obj.Name ~= "Terrain" and obj.Name ~= "FloatPart" then
                     if not obj.Anchored and obj.Parent and obj.Parent ~= workspace then
                         local distance = (obj.Position - targetPos).Magnitude
                         
                         if distance < 150 then
                             local direction = (targetPos - obj.Position).Unit
-                            obj.AssemblyLinearVelocity = direction * 250
+                            obj.AssemblyLinearVelocity = direction * 300
                         end
-                    end                end
+                    end
+                end
+            end
+            
+            if myHRP and antiFlingEnabled then
+                myHRP.AssemblyLinearVelocity = Vector3.new(myHRP.AssemblyLinearVelocity.X, 0, myHRP.AssemblyLinearVelocity.Z)
+                myHRP.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
             end
         end)
     else
@@ -448,6 +403,49 @@ function setupBlackholePlayer(enabled)
             connections.blackholePlayer = nil
         end
     end
+end
+
+local function updatePlayerList()
+    for _, child in pairs(PlayerScrollFrame:GetChildren()) do
+        if child:IsA("TextButton") then
+            child:Destroy()
+        end
+    end
+    
+    local yPos = 0
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            local PlayerButton = Instance.new("TextButton")
+            PlayerButton.Size = UDim2.new(1, -5, 0, 40)
+            PlayerButton.Position = UDim2.new(0, 0, 0, yPos)
+            PlayerButton.BackgroundColor3 = Color3.fromRGB(50, 50, 65)
+            PlayerButton.BorderSizePixel = 0
+            PlayerButton.Font = Enum.Font.GothamSemibold
+            PlayerButton.Text = player.Name
+            PlayerButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+            PlayerButton.TextSize = 14
+            PlayerButton.Parent = PlayerScrollFrame
+            
+            local PlayerButtonCorner = Instance.new("UICorner")
+            PlayerButtonCorner.CornerRadius = UDim.new(0, 8)
+            PlayerButtonCorner.Parent = PlayerButton
+            
+            PlayerButton.MouseButton1Click:Connect(function()
+                targetPlayer = player
+                PlayerSelectButton.Text = player.Name
+                PlayerListFrame.Visible = false
+                
+                if blackholePlayerEnabled then
+                    setupBlackholePlayer(false)
+                    setupBlackholePlayer(true)
+                end
+            end)
+            
+            yPos = yPos + 45
+        end
+    end
+    
+    PlayerScrollFrame.CanvasSize = UDim2.new(0, 0, 0, yPos)
 end
 
 createToggleButton("AntiFling", "Anti-Fling", UDim2.new(0, 5, 0, 5), setupAntiFling)
@@ -466,15 +464,49 @@ Spacer2.Position = UDim2.new(0, 0, 0, 135)
 Spacer2.BackgroundTransparency = 1
 Spacer2.Parent = ScrollFrame
 
+local InputLabel = Instance.new("TextLabel")
+InputLabel.Size = UDim2.new(1, -10, 0, 25)
+InputLabel.Position = UDim2.new(0, 5, 0, 145)
+InputLabel.BackgroundTransparency = 1
+InputLabel.Font = Enum.Font.GothamSemibold
+InputLabel.Text = "Blackhole Player:"
+InputLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+InputLabel.TextSize = 14
+InputLabel.TextXAlignment = Enum.TextXAlignment.Left
+InputLabel.Parent = ScrollFrame
+
+PlayerSelectButton = Instance.new("TextButton")
+PlayerSelectButton.Name = "PlayerSelectButton"
+PlayerSelectButton.Size = UDim2.new(1, -10, 0, 55)
+PlayerSelectButton.Position = UDim2.new(0, 5, 0, 175)
+PlayerSelectButton.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
+PlayerSelectButton.BorderSizePixel = 0
+PlayerSelectButton.Font = Enum.Font.GothamSemibold
+PlayerSelectButton.Text = "Players"
+PlayerSelectButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+PlayerSelectButton.TextSize = 15
+PlayerSelectButton.Parent = ScrollFrame
+
+local PlayerSelectCorner = Instance.new("UICorner")
+PlayerSelectCorner.CornerRadius = UDim.new(0, 10)
+PlayerSelectCorner.Parent = PlayerSelectButton
+
+PlayerSelectButton.MouseButton1Click:Connect(function()
+    PlayerListFrame.Visible = not PlayerListFrame.Visible
+    if PlayerListFrame.Visible then
+        updatePlayerList()
+    end
+end)
+
 local Spacer3 = Instance.new("Frame")
 Spacer3.Size = UDim2.new(1, 0, 0, 10)
-Spacer3.Position = UDim2.new(0, 0, 0, 205)
+Spacer3.Position = UDim2.new(0, 0, 0, 235)
 Spacer3.BackgroundTransparency = 1
 Spacer3.Parent = ScrollFrame
 
-createToggleButton("BlackholePlayer", "Blackhole Player", UDim2.new(0, 5, 0, 215), setupBlackholePlayer)
+createToggleButton("BlackholePlayer", "Blackhole Player", UDim2.new(0, 5, 0, 245), setupBlackholePlayer)
 
-ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 280)
+ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 310)
 
 local CloseButton = Instance.new("TextButton")
 CloseButton.Name = "CloseButton"
@@ -488,7 +520,8 @@ CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 CloseButton.TextSize = 20
 CloseButton.Parent = MainFrame
 
-local CloseCorner = Instance.new("UICorner")CloseCorner.CornerRadius = UDim.new(0, 10)
+local CloseCorner = Instance.new("UICorner")
+CloseCorner.CornerRadius = UDim.new(0, 10)
 CloseCorner.Parent = CloseButton
 
 CloseButton.MouseButton1Click:Connect(function()
@@ -509,9 +542,9 @@ CloseButton.MouseButton1Click:Connect(function()
             humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, true)
         end
         
-        for _, part in pairs(character:GetDescendants()) do
-            if part:IsA("BasePart") then
-                part.CanCollide = true
+        for part, canCollide in pairs(originalCanCollide) do
+            if part and part:IsDescendantOf(character) then
+                part.CanCollide = canCollide
             end
         end
     end
@@ -537,7 +570,8 @@ local isMinimized = false
 MinimizeButton.MouseButton1Click:Connect(function()
     isMinimized = not isMinimized
     if isMinimized then
-        MainFrame:TweenSize(UDim2.new(0, 320, 0, 50), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.3, true)        MinimizeButton.Text = "+"
+        MainFrame:TweenSize(UDim2.new(0, 320, 0, 50), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.3, true)
+        MinimizeButton.Text = "+"
     else
         MainFrame:TweenSize(UDim2.new(0, 320, 0, 450), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.3, true)
         MinimizeButton.Text = "-"
