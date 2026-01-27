@@ -9,7 +9,7 @@ local antiFlingEnabled = false
 local blackholeEnabled = false
 local blackholePlayerEnabled = false
 local targetPlayer = nil
-local blackholeRadius = 15
+local blackholeRadius = 100
 local connections = {}
 local originalCanCollide = {}
 
@@ -260,7 +260,7 @@ local function setupAntiFling(enabled)
                 end
                 
                 if currentPos.Y < targetHeight - 0.1 or currentPos.Y > targetHeight + 0.1 then
-                    hrp.CFrame = CFrame.new(currentPos.X, targetHeight, currentPos.Z) * CFrame.Angles(0, (hrp.CFrame - hrp.Position).LookVector.Y, 0)
+                    hrp.CFrame = CFrame.new(currentPos.X, targetHeight, currentPos.Z) * (hrp.CFrame - hrp.Position)
                 end
                 
                 if hrp.AssemblyLinearVelocity.Y > 5 or hrp.AssemblyLinearVelocity.Y < -5 then
@@ -339,15 +339,15 @@ local function setupBlackhole(enabled)
                     if not obj.Anchored and obj.Parent and obj.Parent ~= workspace then
                         local distance = (obj.Position - playerPos).Magnitude
                         
-                        if distance < 150 then
+                        if distance < 500 then
                             local direction = (playerPos - obj.Position).Unit
                             local currentDistance = (obj.Position - playerPos).Magnitude
                             
                             if currentDistance > blackholeRadius then
-                                obj.AssemblyLinearVelocity = direction * 200
+                                obj.AssemblyLinearVelocity = direction * 300
                             else
                                 local tangent = Vector3.new(-direction.Z, 0, direction.X).Unit
-                                obj.AssemblyLinearVelocity = tangent * 80 + direction * 20
+                                obj.AssemblyLinearVelocity = tangent * 120 + direction * 40
                             end
                         end
                     end
@@ -380,21 +380,27 @@ local function setupBlackholePlayer(enabled)
             local myHRP = myCharacter and myCharacter:FindFirstChild("HumanoidRootPart")
             
             for _, obj in pairs(workspace:GetDescendants()) do
-                if obj:IsA("BasePart") and not obj:IsDescendantOf(targetPlayer.Character) and not obj:IsDescendantOf(myCharacter) and obj.Name ~= "Baseplate" and obj.Name ~= "Terrain" and obj.Name ~= "FloatPart" then
+                if obj:IsA("BasePart") and obj.Name ~= "Baseplate" and obj.Name ~= "Terrain" and obj.Name ~= "FloatPart" then
                     if not obj.Anchored and obj.Parent and obj.Parent ~= workspace then
-                        local distance = (obj.Position - targetPos).Magnitude
-                        
-                        if distance < 150 then
-                            local direction = (targetPos - obj.Position).Unit
-                            obj.AssemblyLinearVelocity = direction * 300
+                        if not obj:IsDescendantOf(targetPlayer.Character) and not (myCharacter and obj:IsDescendantOf(myCharacter)) then
+                            local distance = (obj.Position - targetPos).Magnitude
+                            
+                            if distance < 500 then
+                                local direction = (targetPos - obj.Position).Unit
+                                obj.AssemblyLinearVelocity = direction * 500
+                            end
                         end
                     end
                 end
             end
             
             if myHRP and antiFlingEnabled then
-                myHRP.AssemblyLinearVelocity = Vector3.new(myHRP.AssemblyLinearVelocity.X, 0, myHRP.AssemblyLinearVelocity.Z)
-                myHRP.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
+                if myHRP.AssemblyLinearVelocity.Y > 5 or myHRP.AssemblyLinearVelocity.Y < -5 then
+                    myHRP.AssemblyLinearVelocity = Vector3.new(myHRP.AssemblyLinearVelocity.X, 0, myHRP.AssemblyLinearVelocity.Z)
+                end
+                if myHRP.AssemblyAngularVelocity.Magnitude > 10 then
+                    myHRP.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
+                end
             end
         end)
     else
