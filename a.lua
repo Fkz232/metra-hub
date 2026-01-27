@@ -10,6 +10,8 @@ local blackholeEnabled = false
 local blackholePlayerEnabled = false
 local targetPlayer = nil
 local blackholeRadius = 100
+local blackholeSelfForce = 300
+local blackholePlayerForce = 500
 local connections = {}
 local originalCanCollide = {}
 
@@ -95,7 +97,7 @@ ScrollFrame.BackgroundTransparency = 1
 ScrollFrame.BorderSizePixel = 0
 ScrollFrame.ScrollBarThickness = 6
 ScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(100, 100, 120)
-ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 400)
+ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 800)
 ScrollFrame.Parent = MainFrame
 
 local PlayerListFrame = Instance.new("Frame")
@@ -141,11 +143,13 @@ PlayerListLayout.SortOrder = Enum.SortOrder.Name
 PlayerListLayout.Padding = UDim.new(0, 5)
 PlayerListLayout.Parent = PlayerScrollFrame
 
-local function createToggleButton(name, text, position, callback)
+local currentYPosition = 5
+
+local function createToggleButton(name, text, callback)
     local Button = Instance.new("TextButton")
     Button.Name = name
     Button.Size = UDim2.new(1, -10, 0, 55)
-    Button.Position = position
+    Button.Position = UDim2.new(0, 5, 0, currentYPosition)
     Button.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
     Button.BorderSizePixel = 0
     Button.Font = Enum.Font.GothamBold
@@ -199,7 +203,190 @@ local function createToggleButton(name, text, position, callback)
         callback(isEnabled)
     end)
     
+    currentYPosition = currentYPosition + 65
     return Button
+end
+
+local function createSlider(name, text, minValue, maxValue, defaultValue, callback)
+    local SliderFrame = Instance.new("Frame")
+    SliderFrame.Name = name
+    SliderFrame.Size = UDim2.new(1, -10, 0, 70)
+    SliderFrame.Position = UDim2.new(0, 5, 0, currentYPosition)
+    SliderFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
+    SliderFrame.BorderSizePixel = 0
+    SliderFrame.Parent = ScrollFrame
+    
+    local SliderCorner = Instance.new("UICorner")
+    SliderCorner.CornerRadius = UDim.new(0, 10)
+    SliderCorner.Parent = SliderFrame
+    
+    local SliderLabel = Instance.new("TextLabel")
+    SliderLabel.Size = UDim2.new(1, -20, 0, 25)
+    SliderLabel.Position = UDim2.new(0, 10, 0, 5)
+    SliderLabel.BackgroundTransparency = 1
+    SliderLabel.Font = Enum.Font.GothamSemibold
+    SliderLabel.Text = text .. ": " .. defaultValue
+    SliderLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    SliderLabel.TextSize = 14
+    SliderLabel.TextXAlignment = Enum.TextXAlignment.Left
+    SliderLabel.Parent = SliderFrame
+    
+    local SliderBar = Instance.new("Frame")
+    SliderBar.Size = UDim2.new(1, -20, 0, 8)
+    SliderBar.Position = UDim2.new(0, 10, 0, 35)
+    SliderBar.BackgroundColor3 = Color3.fromRGB(50, 50, 65)
+    SliderBar.BorderSizePixel = 0
+    SliderBar.Parent = SliderFrame
+    
+    local SliderBarCorner = Instance.new("UICorner")
+    SliderBarCorner.CornerRadius = UDim.new(1, 0)
+    SliderBarCorner.Parent = SliderBar
+    
+    local SliderFill = Instance.new("Frame")
+    SliderFill.Size = UDim2.new((defaultValue - minValue) / (maxValue - minValue), 0, 1, 0)
+    SliderFill.BackgroundColor3 = Color3.fromRGB(100, 150, 255)
+    SliderFill.BorderSizePixel = 0
+    SliderFill.Parent = SliderBar
+    
+    local SliderFillCorner = Instance.new("UICorner")
+    SliderFillCorner.CornerRadius = UDim.new(1, 0)
+    SliderFillCorner.Parent = SliderFill
+    
+    local SliderButton = Instance.new("TextButton")
+    SliderButton.Size = UDim2.new(0, 20, 0, 20)
+    SliderButton.Position = UDim2.new((defaultValue - minValue) / (maxValue - minValue), -10, 0.5, -10)
+    SliderButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    SliderButton.BorderSizePixel = 0
+    SliderButton.Text = ""
+    SliderButton.Parent = SliderBar
+    
+    local ButtonCorner = Instance.new("UICorner")
+    ButtonCorner.CornerRadius = UDim.new(1, 0)
+    ButtonCorner.Parent = SliderButton
+    
+    local draggingSlider = false
+    local currentValue = defaultValue
+    
+    local function updateSlider(input)
+        local relativeX = math.clamp((input.Position.X - SliderBar.AbsolutePosition.X) / SliderBar.AbsoluteSize.X, 0, 1)
+        currentValue = math.floor(minValue + (maxValue - minValue) * relativeX)
+        
+        SliderFill.Size = UDim2.new(relativeX, 0, 1, 0)
+        SliderButton.Position = UDim2.new(relativeX, -10, 0.5, -10)
+        SliderLabel.Text = text .. ": " .. currentValue
+        
+        callback(currentValue)
+    end
+    
+    SliderButton.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            draggingSlider = true
+            updateSlider(input)
+        end
+    end)
+    
+    SliderButton.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            draggingSlider = false
+        end
+    end)
+    
+    SliderBar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            draggingSlider = true
+            updateSlider(input)
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if draggingSlider and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            updateSlider(input)
+        end
+    end)
+    
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            draggingSlider = false
+        end
+    end)
+    
+    currentYPosition = currentYPosition + 80
+    return SliderFrame
+end
+
+local function createButton(name, text, callback)
+    local Button = Instance.new("TextButton")
+    Button.Name = name
+    Button.Size = UDim2.new(1, -10, 0, 55)
+    Button.Position = UDim2.new(0, 5, 0, currentYPosition)
+    Button.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+    Button.BorderSizePixel = 0
+    Button.Font = Enum.Font.GothamBold
+    Button.Text = text
+    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Button.TextSize = 16
+    Button.AutoButtonColor = true
+    Button.Parent = ScrollFrame
+    
+    local ButtonCorner = Instance.new("UICorner")
+    ButtonCorner.CornerRadius = UDim.new(0, 10)
+    ButtonCorner.Parent = Button
+    
+    local ClickEffect = Instance.new("Frame")
+    ClickEffect.Size = UDim2.new(1, 0, 1, 0)
+    ClickEffect.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    ClickEffect.BackgroundTransparency = 1
+    ClickEffect.BorderSizePixel = 0
+    ClickEffect.ZIndex = 2
+    ClickEffect.Parent = Button
+    
+    local EffectCorner = Instance.new("UICorner")
+    EffectCorner.CornerRadius = UDim.new(0, 10)
+    EffectCorner.Parent = ClickEffect
+    
+    Button.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+            ClickEffect.BackgroundTransparency = 0.8
+        end
+    end)
+    
+    Button.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+            ClickEffect.BackgroundTransparency = 1
+        end
+    end)
+    
+    Button.MouseButton1Click:Connect(callback)
+    
+    currentYPosition = currentYPosition + 65
+    return Button
+end
+
+local function createSpacer(height)
+    local Spacer = Instance.new("Frame")
+    Spacer.Size = UDim2.new(1, 0, 0, height)
+    Spacer.Position = UDim2.new(0, 0, 0, currentYPosition)
+    Spacer.BackgroundTransparency = 1
+    Spacer.Parent = ScrollFrame
+    
+    currentYPosition = currentYPosition + height
+    return Spacer
+end
+
+local function createLabel(text)
+    local Label = Instance.new("TextLabel")
+    Label.Size = UDim2.new(1, -10, 0, 25)
+    Label.Position = UDim2.new(0, 5, 0, currentYPosition)
+    Label.BackgroundTransparency = 1
+    Label.Font = Enum.Font.GothamSemibold
+    Label.Text = text
+    Label.TextColor3 = Color3.fromRGB(200, 200, 200)
+    Label.TextSize = 14
+    Label.TextXAlignment = Enum.TextXAlignment.Left
+    Label.Parent = ScrollFrame
+    
+    currentYPosition = currentYPosition + 30
+    return Label
 end
 
 local function setupAntiFling(enabled)
@@ -344,10 +531,10 @@ local function setupBlackhole(enabled)
                             local currentDistance = (obj.Position - playerPos).Magnitude
                             
                             if currentDistance > blackholeRadius then
-                                obj.AssemblyLinearVelocity = direction * 300
+                                obj.AssemblyLinearVelocity = direction * blackholeSelfForce
                             else
                                 local tangent = Vector3.new(-direction.Z, 0, direction.X).Unit
-                                obj.AssemblyLinearVelocity = tangent * 120 + direction * 40
+                                obj.AssemblyLinearVelocity = tangent * (blackholeSelfForce * 0.4) + direction * (blackholeSelfForce * 0.13)
                             end
                         end
                     end
@@ -385,9 +572,16 @@ local function setupBlackholePlayer(enabled)
                         if not obj:IsDescendantOf(targetPlayer.Character) and not (myCharacter and obj:IsDescendantOf(myCharacter)) then
                             local distance = (obj.Position - targetPos).Magnitude
                             
-                            if distance < 500 then
+                            if distance < 1000 then
                                 local direction = (targetPos - obj.Position).Unit
-                                obj.AssemblyLinearVelocity = direction * 500
+                                local currentDistance = (obj.Position - targetPos).Magnitude
+                                
+                                if currentDistance > blackholeRadius then
+                                    obj.AssemblyLinearVelocity = direction * blackholePlayerForce
+                                else
+                                    local tangent = Vector3.new(-direction.Z, 0, direction.X).Unit
+                                    obj.AssemblyLinearVelocity = tangent * (blackholePlayerForce * 0.3) + direction * (blackholePlayerForce * 0.1)
+                                end
                             end
                         end
                     end
@@ -454,37 +648,20 @@ local function updatePlayerList()
     PlayerScrollFrame.CanvasSize = UDim2.new(0, 0, 0, yPos)
 end
 
-createToggleButton("AntiFling", "Anti-Fling", UDim2.new(0, 5, 0, 5), setupAntiFling)
-
-local Spacer1 = Instance.new("Frame")
-Spacer1.Size = UDim2.new(1, 0, 0, 10)
-Spacer1.Position = UDim2.new(0, 0, 0, 65)
-Spacer1.BackgroundTransparency = 1
-Spacer1.Parent = ScrollFrame
-
-createToggleButton("Blackhole", "Blackhole (Voce)", UDim2.new(0, 5, 0, 75), setupBlackhole)
-
-local Spacer2 = Instance.new("Frame")
-Spacer2.Size = UDim2.new(1, 0, 0, 10)
-Spacer2.Position = UDim2.new(0, 0, 0, 135)
-Spacer2.BackgroundTransparency = 1
-Spacer2.Parent = ScrollFrame
-
-local InputLabel = Instance.new("TextLabel")
-InputLabel.Size = UDim2.new(1, -10, 0, 25)
-InputLabel.Position = UDim2.new(0, 5, 0, 145)
-InputLabel.BackgroundTransparency = 1
-InputLabel.Font = Enum.Font.GothamSemibold
-InputLabel.Text = "Blackhole Player:"
-InputLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-InputLabel.TextSize = 14
-InputLabel.TextXAlignment = Enum.TextXAlignment.Left
-InputLabel.Parent = ScrollFrame
+createToggleButton("AntiFling", "Anti-Fling", setupAntiFling)
+createSpacer(10)
+createToggleButton("Blackhole", "Blackhole (Voce)", setupBlackhole)
+createSpacer(10)
+createSlider("BlackholeSelfForce", "Forca Blackhole (Voce)", 100, 1000, 300, function(value)
+    blackholeSelfForce = value
+end)
+createSpacer(10)
+createLabel("Blackhole Player:")
 
 PlayerSelectButton = Instance.new("TextButton")
 PlayerSelectButton.Name = "PlayerSelectButton"
 PlayerSelectButton.Size = UDim2.new(1, -10, 0, 55)
-PlayerSelectButton.Position = UDim2.new(0, 5, 0, 175)
+PlayerSelectButton.Position = UDim2.new(0, 5, 0, currentYPosition)
 PlayerSelectButton.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
 PlayerSelectButton.BorderSizePixel = 0
 PlayerSelectButton.Font = Enum.Font.GothamSemibold
@@ -499,20 +676,23 @@ PlayerSelectCorner.Parent = PlayerSelectButton
 
 PlayerSelectButton.MouseButton1Click:Connect(function()
     PlayerListFrame.Visible = not PlayerListFrame.Visible
-    if PlayerListFrame.Visible then
-        updatePlayerList()
+    if PlayerListFrame.Visible then updatePlayerList()
     end
 end)
 
-local Spacer3 = Instance.new("Frame")
-Spacer3.Size = UDim2.new(1, 0, 0, 10)
-Spacer3.Position = UDim2.new(0, 0, 0, 235)
-Spacer3.BackgroundTransparency = 1
-Spacer3.Parent = ScrollFrame
+currentYPosition = currentYPosition + 65
+createSpacer(10)
+createToggleButton("BlackholePlayer", "Blackhole Player", setupBlackholePlayer)
+createSpacer(10)
+createSlider("BlackholePlayerForce", "Forca Blackhole Player", 100, 1000, 500, function(value)
+    blackholePlayerForce = value
+end)
+createSpacer(10)
+createButton("Emotes", "Emotes", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/7yd7/Hub/refs/heads/Branch/GUIS/Emotes.lua"))()
+end)
 
-createToggleButton("BlackholePlayer", "Blackhole Player", UDim2.new(0, 5, 0, 245), setupBlackholePlayer)
-
-ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 310)
+ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, currentYPosition + 10)
 
 local CloseButton = Instance.new("TextButton")
 CloseButton.Name = "CloseButton"
