@@ -22,6 +22,7 @@ local blackholePlayerPullDistance = 1000
 
 local connections = {}
 local originalCanCollide = {}
+local originalGravity = {}
 
 local isMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
 
@@ -412,22 +413,24 @@ local function setupAntiFling(enabled)
             humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
             humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
             
-            local floatPart = Instance.new("Part")
-            floatPart.Name = "FloatPart"
-            floatPart.Size = Vector3.new(5, 0.2, 5)
-            floatPart.Transparency = 1
-            floatPart.Anchored = true
-            floatPart.CanCollide = true
-            floatPart.Parent = workspace
-            
             for _, part in pairs(character:GetDescendants()) do
                 if part:IsA("BasePart") then
                     originalCanCollide[part] = part.CanCollide
                     part.CanCollide = false
+                    if part:FindFirstChildOfClass("BodyVelocity") then
+                        part:FindFirstChildOfClass("BodyVelocity"):Destroy()
+                    end
+                    if part:FindFirstChildOfClass("BodyGyro") then
+                        part:FindFirstChildOfClass("BodyGyro"):Destroy()
+                    end
                 end
             end
             
-            local groundHeight = humanoidRootPart.Position.Y - 3
+            local bodyVelocity = Instance.new("BodyVelocity")
+            bodyVelocity.Name = "AntiFlingVelocity"
+            bodyVelocity.MaxForce = Vector3.new(0, math.huge, 0)
+            bodyVelocity.Velocity = Vector3.new(0, 0, 0)
+            bodyVelocity.Parent = humanoidRootPart
             
             connections.antiFling = RunService.Heartbeat:Connect(function()
                 if not antiFlingEnabled then return end
@@ -438,48 +441,34 @@ local function setupAntiFling(enabled)
                 local hrp = character:FindFirstChild("HumanoidRootPart")
                 if not hrp then return end
                 
-                local currentPos = hrp.Position
-                local targetHeight = groundHeight + 5.05
-                
-                local rayOrigin = Vector3.new(currentPos.X, currentPos.Y + 10, currentPos.Z)
-                local rayDirection = Vector3.new(0, -100, 0)
-                local raycastParams = RaycastParams.new()
-                raycastParams.FilterDescendantsInstances = {character, floatPart}
-                raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
-                
-                local rayResult = workspace:Raycast(rayOrigin, rayDirection, raycastParams)
-                
-                if rayResult then
-                    groundHeight = rayResult.Position.Y
-                    targetHeight = groundHeight + 5.05
+                local bv = hrp:FindFirstChild("AntiFlingVelocity")
+                if bv then
+                    bv.Velocity = Vector3.new(0, 0, 0)
                 end
                 
-                if currentPos.Y < targetHeight - 0.1 or currentPos.Y > targetHeight + 0.1 then
-                    hrp.CFrame = CFrame.new(currentPos.X, targetHeight, currentPos.Z) * (hrp.CFrame - hrp.Position)
-                end
-                
-                if hrp.AssemblyLinearVelocity.Y > 5 or hrp.AssemblyLinearVelocity.Y < -5 then
+                if hrp.AssemblyLinearVelocity.Y > 50 or hrp.AssemblyLinearVelocity.Y < -50 then
                     hrp.AssemblyLinearVelocity = Vector3.new(hrp.AssemblyLinearVelocity.X, 0, hrp.AssemblyLinearVelocity.Z)
                 end
                 
-                if hrp.AssemblyAngularVelocity.Magnitude > 10 then
+                if hrp.AssemblyAngularVelocity.Magnitude > 20 then
                     hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
                 end
                 
-                floatPart.CFrame = CFrame.new(currentPos.X, targetHeight - 2.6, currentPos.Z)
-                
                 for _, part in pairs(character:GetDescendants()) do
-                    if part:IsA("BasePart") and part ~= floatPart then
+                    if part:IsA("BasePart") then
                         part.CanCollide = false
                     end
                 end
             end)
-            
-            connections.floatPart = floatPart
         end
         
         protectCharacter()
-        LocalPlayer.CharacterAdded:Connect(function()
+        
+        if connections.characterAdded then
+            connections.characterAdded:Disconnect()
+        end
+        
+        connections.characterAdded = LocalPlayer.CharacterAdded:Connect(function()
             if antiFlingEnabled then
                 wait(0.5)
                 protectCharacter()
@@ -491,9 +480,9 @@ local function setupAntiFling(enabled)
             connections.antiFling = nil
         end
         
-        if connections.floatPart then
-            connections.floatPart:Destroy()
-            connections.floatPart = nil
+        if connections.characterAdded then
+            connections.characterAdded:Disconnect()
+            connections.characterAdded = nil
         end
         
         local character = LocalPlayer.Character
@@ -502,6 +491,14 @@ local function setupAntiFling(enabled)
             if humanoid then
                 humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, true)
                 humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, true)
+            end
+            
+            local hrp = character:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                local bv = hrp:FindFirstChild("AntiFlingVelocity")
+                if bv then
+                    bv:Destroy()
+                end
             end
             
             for part, canCollide in pairs(originalCanCollide) do
@@ -530,7 +527,7 @@ local function setupBlackholeSelf(enabled)
             local playerPos = hrp.Position
             
             for _, obj in pairs(workspace:GetDescendants()) do
-                if obj:IsA("BasePart") and not obj:IsDescendantOf(character) and obj.Name ~= "Baseplate" and obj.Name ~= "Terrain" and obj.Name ~= "FloatPart" then
+                if obj:IsA("BasePart") and not obj:IsDescendantOf(character) and obj.Name ~= "Baseplate" and obj.Name ~= "Terrain" then
                     if not obj.Anchored then
                         local distance = (obj.Position - playerPos).Magnitude
                         
@@ -575,7 +572,7 @@ local function setupBlackholePlayer(enabled)
             local myHRP = myCharacter and myCharacter:FindFirstChild("HumanoidRootPart")
             
             for _, obj in pairs(workspace:GetDescendants()) do
-                if obj:IsA("BasePart") and obj.Name ~= "Baseplate" and obj.Name ~= "Terrain" and obj.Name ~= "FloatPart" then
+                if obj:IsA("BasePart") and obj.Name ~= "Baseplate" and obj.Name ~= "Terrain" then
                     if not obj.Anchored then
                         if not obj:IsDescendantOf(targetPlayer.Character) and not (myCharacter and obj:IsDescendantOf(myCharacter)) then
                             local distance = (obj.Position - targetPos).Magnitude
@@ -597,10 +594,10 @@ local function setupBlackholePlayer(enabled)
             end
             
             if myHRP and antiFlingEnabled then
-                if myHRP.AssemblyLinearVelocity.Y > 5 or myHRP.AssemblyLinearVelocity.Y < -5 then
+                if myHRP.AssemblyLinearVelocity.Y > 50 or myHRP.AssemblyLinearVelocity.Y < -50 then
                     myHRP.AssemblyLinearVelocity = Vector3.new(myHRP.AssemblyLinearVelocity.X, 0, myHRP.AssemblyLinearVelocity.Z)
                 end
-                if myHRP.AssemblyAngularVelocity.Magnitude > 10 then
+                if myHRP.AssemblyAngularVelocity.Magnitude > 20 then
                     myHRP.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
                 end
             end
@@ -717,9 +714,6 @@ createSpacer(10)
 createButton("Emotes", "Emotes", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/7yd7/Hub/refs/heads/Branch/GUIS/Emotes.lua"))()
 end)
-createButton("Aimbot", "Aimbot", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Fkz232/metra-hub/refs/heads/main/b.lua"))()
-end)
 
 ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, currentYPosition + 10)
 
@@ -755,6 +749,14 @@ CloseButton.MouseButton1Click:Connect(function()
         if humanoid then
             humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, true)
             humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, true)
+        end
+        
+        local hrp = character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            local bv = hrp:FindFirstChild("AntiFlingVelocity")
+            if bv then
+                bv:Destroy()
+            end
         end
         
         for part, canCollide in pairs(originalCanCollide) do
