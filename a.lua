@@ -222,38 +222,13 @@ TabLayout.Parent = TabFrame
 
 local currentTab = "Protecao"
 
-local function createTab(name, text, order)
-    local Tab = Instance.new("TextButton")
-    Tab.Name = name
-    Tab.Size = UDim2.new(0, isMobile and 105 or 95, 1, -10)
-    Tab.Position = UDim2.new(0, 5, 0, 5)
-    Tab.BackgroundColor3 = name == currentTab and currentTheme.accent or currentTheme.button
-    Tab.BorderSizePixel = 0
-    Tab.Font = Enum.Font.GothamBold
-    Tab.Text = text
-    Tab.TextColor3 = currentTheme.text
-    Tab.TextSize = isMobile and 13 or 14
-    Tab.LayoutOrder = order
-    Tab.Parent = TabFrame
-    
-    local TabCorner = Instance.new("UICorner")
-    TabCorner.CornerRadius = UDim.new(0, 8)
-    TabCorner.Parent = Tab
-    
-    return Tab
-end
-
-local ProtecaoTab = createTab("Protecao", "Protecao", 1)
-local BlackholeTab = createTab("Blackhole", "Blackhole", 2)
-local ExtrasTab = createTab("Extras", "Extras", 3)
-
 local ScrollFrame = Instance.new("ScrollingFrame")
 ScrollFrame.Name = "ScrollFrame"
 ScrollFrame.Size = UDim2.new(1, -20, 1, -120)
 ScrollFrame.Position = UDim2.new(0, 10, 0, 110)
 ScrollFrame.BackgroundTransparency = 1
 ScrollFrame.BorderSizePixel = 0
-ScrollFrame.ScrollBarThickness = isMobile and 8 : 6
+ScrollFrame.ScrollBarThickness = isMobile and 8 or 6
 ScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(100, 100, 120)
 ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 800)
 ScrollFrame.Parent = MainFrame
@@ -291,7 +266,7 @@ PlayerScrollFrame.Size = UDim2.new(1, -10, 1, -50)
 PlayerScrollFrame.Position = UDim2.new(0, 5, 0, 45)
 PlayerScrollFrame.BackgroundTransparency = 1
 PlayerScrollFrame.BorderSizePixel = 0
-PlayerScrollFrame.ScrollBarThickness = isMobile and 6 : 4
+PlayerScrollFrame.ScrollBarThickness = isMobile and 6 or 4
 PlayerScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(100, 100, 120)
 PlayerScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
 PlayerScrollFrame.Parent = PlayerListFrame
@@ -334,14 +309,14 @@ local currentYPosition = 5
 local function createToggleButton(name, text, callback)
     local Button = Instance.new("TextButton")
     Button.Name = name
-    Button.Size = UDim2.new(1, -10, 0, isMobile and 65 : 55)
+    Button.Size = UDim2.new(1, -10, 0, isMobile and 65 or 55)
     Button.Position = UDim2.new(0, 5, 0, currentYPosition)
     Button.BackgroundColor3 = currentTheme.button
     Button.BorderSizePixel = 0
     Button.Font = Enum.Font.GothamBold
     Button.Text = text .. ": OFF"
     Button.TextColor3 = currentTheme.textOff
-    Button.TextSize = isMobile and 15 : 16
+    Button.TextSize = isMobile and 15 or 16
     Button.AutoButtonColor = false
     Button.Parent = ScrollFrame
     
@@ -365,9 +340,9 @@ local function createToggleButton(name, text, callback)
     Button.MouseEnter:Connect(function()
         if not isEnabled then
             TweenService:Create(Button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(
-                currentTheme.button.R * 255 + 10,
-                currentTheme.button.G * 255 + 10,
-                currentTheme.button.B * 255 + 10
+                math.min(currentTheme.button.R * 255 + 10, 255),
+                math.min(currentTheme.button.G * 255 + 10, 255),
+                math.min(currentTheme.button.B * 255 + 10, 255)
             )}):Play()
         end
     end)
@@ -407,7 +382,7 @@ end
 local function createSlider(name, text, minValue, maxValue, defaultValue, callback)
     local SliderFrame = Instance.new("Frame")
     SliderFrame.Name = name
-    SliderFrame.Size = UDim2.new(1, -10, 0, isMobile and 80 : 70)
+    SliderFrame.Size = UDim2.new(1, -10, 0, isMobile and 80 or 70)
     SliderFrame.Position = UDim2.new(0, 5, 0, currentYPosition)
     SliderFrame.BackgroundColor3 = currentTheme.secondary
     SliderFrame.BorderSizePixel = 0
@@ -424,13 +399,13 @@ local function createSlider(name, text, minValue, maxValue, defaultValue, callba
     SliderLabel.Font = Enum.Font.GothamSemibold
     SliderLabel.Text = text .. ": " .. defaultValue
     SliderLabel.TextColor3 = currentTheme.text
-    SliderLabel.TextSize = isMobile and 13 : 14
+    SliderLabel.TextSize = isMobile and 13 or 14
     SliderLabel.TextXAlignment = Enum.TextXAlignment.Left
     SliderLabel.Parent = SliderFrame
     
     local SliderBar = Instance.new("Frame")
-    SliderBar.Size = UDim2.new(1, -20, 0, isMobile and 10 : 8)
-    SliderBar.Position = UDim2.new(0, 10, 0, isMobile and 40 : 35)
+    SliderBar.Size = UDim2.new(1, -20, 0, isMobile and 10 or 8)
+    SliderBar.Position = UDim2.new(0, 10, 0, isMobile and 40 or 35)
     SliderBar.BackgroundColor3 = Color3.fromRGB(50, 50, 65)
     SliderBar.BorderSizePixel = 0
     SliderBar.Parent = SliderFrame
@@ -450,8 +425,8 @@ local function createSlider(name, text, minValue, maxValue, defaultValue, callba
     SliderFillCorner.Parent = SliderFill
     
     local SliderButton = Instance.new("TextButton")
-    SliderButton.Size = UDim2.new(0, isMobile and 24 : 20, 0, isMobile and 24 : 20)
-    SliderButton.Position = UDim2.new((defaultValue - minValue) / (maxValue - minValue), isMobile and -12 : -10, 0.5, isMobile and -12 : -10)
+    SliderButton.Size = UDim2.new(0, isMobile and 24 or 20, 0, isMobile and 24 or 20)
+    SliderButton.Position = UDim2.new((defaultValue - minValue) / (maxValue - minValue), isMobile and -12 or -10, 0.5, isMobile and -12 or -10)
     SliderButton.BackgroundColor3 = currentTheme.text
     SliderButton.BorderSizePixel = 0
     SliderButton.Text = ""
@@ -469,7 +444,7 @@ local function createSlider(name, text, minValue, maxValue, defaultValue, callba
         currentValue = math.floor(minValue + (maxValue - minValue) * relativeX)
         
         TweenService:Create(SliderFill, TweenInfo.new(0.1), {Size = UDim2.new(relativeX, 0, 1, 0)}):Play()
-        TweenService:Create(SliderButton, TweenInfo.new(0.1), {Position = UDim2.new(relativeX, isMobile and -12 : -10, 0.5, isMobile and -12 : -10)}):Play()
+        TweenService:Create(SliderButton, TweenInfo.new(0.1), {Position = UDim2.new(relativeX, isMobile and -12 or -10, 0.5, isMobile and -12 or -10)}):Play()
         SliderLabel.Text = text .. ": " .. currentValue
         
         callback(currentValue)
@@ -479,14 +454,14 @@ local function createSlider(name, text, minValue, maxValue, defaultValue, callba
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             draggingSlider = true
             updateSlider(input)
-            TweenService:Create(SliderButton, TweenInfo.new(0.1), {Size = UDim2.new(0, isMobile and 28 : 24, 0, isMobile and 28 : 24)}):Play()
+            TweenService:Create(SliderButton, TweenInfo.new(0.1), {Size = UDim2.new(0, isMobile and 28 or 24, 0, isMobile and 28 or 24)}):Play()
         end
     end)
     
     SliderButton.InputEnded:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             draggingSlider = false
-            TweenService:Create(SliderButton, TweenInfo.new(0.1), {Size = UDim2.new(0, isMobile and 24 : 20, 0, isMobile and 24 : 20)}):Play()
+            TweenService:Create(SliderButton, TweenInfo.new(0.1), {Size = UDim2.new(0, isMobile and 24 or 20, 0, isMobile and 24 or 20)}):Play()
         end
     end)
     
@@ -506,25 +481,25 @@ local function createSlider(name, text, minValue, maxValue, defaultValue, callba
     UserInputService.InputEnded:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             draggingSlider = false
-            TweenService:Create(SliderButton, TweenInfo.new(0.1), {Size = UDim2.new(0, isMobile and 24 : 20, 0, isMobile and 24 : 20)}):Play()
+            TweenService:Create(SliderButton, TweenInfo.new(0.1), {Size = UDim2.new(0, isMobile and 24 or 20, 0, isMobile and 24 or 20)}):Play()
         end
     end)
     
-    currentYPosition = currentYPosition + (isMobile and 90 : 80)
+    currentYPosition = currentYPosition + (isMobile and 90 or 80)
     return SliderFrame
 end
 
 local function createButton(name, text, callback)
     local Button = Instance.new("TextButton")
     Button.Name = name
-    Button.Size = UDim2.new(1, -10, 0, isMobile and 65 : 55)
+    Button.Size = UDim2.new(1, -10, 0, isMobile and 65 or 55)
     Button.Position = UDim2.new(0, 5, 0, currentYPosition)
     Button.BackgroundColor3 = currentTheme.button
     Button.BorderSizePixel = 0
     Button.Font = Enum.Font.GothamBold
     Button.Text = text
     Button.TextColor3 = currentTheme.text
-    Button.TextSize = isMobile and 15 : 16
+    Button.TextSize = isMobile and 15 or 16
     Button.AutoButtonColor = false
     Button.Parent = ScrollFrame
     
@@ -541,13 +516,13 @@ local function createButton(name, text, callback)
     end)
     
     Button.MouseButton1Click:Connect(function()
-        TweenService:Create(Button, TweenInfo.new(0.1), {Size = UDim2.new(1, -15, 0, isMobile and 60 : 50)}):Play()
+        TweenService:Create(Button, TweenInfo.new(0.1), {Size = UDim2.new(1, -15, 0, isMobile and 60 or 50)}):Play()
         wait(0.1)
-        TweenService:Create(Button, TweenInfo.new(0.1), {Size = UDim2.new(1, -10, 0, isMobile and 65 : 55)}):Play()
+        TweenService:Create(Button, TweenInfo.new(0.1), {Size = UDim2.new(1, -10, 0, isMobile and 65 or 55)}):Play()
         callback()
     end)
     
-    currentYPosition = currentYPosition + (isMobile and 75 : 65)
+    currentYPosition = currentYPosition + (isMobile and 75 or 65)
     return Button
 end
 
@@ -564,17 +539,17 @@ end
 
 local function createLabel(text)
     local Label = Instance.new("TextLabel")
-    Label.Size = UDim2.new(1, -10, 0, isMobile and 30 : 25)
+    Label.Size = UDim2.new(1, -10, 0, isMobile and 30 or 25)
     Label.Position = UDim2.new(0, 5, 0, currentYPosition)
     Label.BackgroundTransparency = 1
     Label.Font = Enum.Font.GothamBold
     Label.Text = text
     Label.TextColor3 = currentTheme.accent
-    Label.TextSize = isMobile and 15 : 14
+    Label.TextSize = isMobile and 15 or 14
     Label.TextXAlignment = Enum.TextXAlignment.Left
     Label.Parent = ScrollFrame
     
-    currentYPosition = currentYPosition + (isMobile and 35 : 30)
+    currentYPosition = currentYPosition + (isMobile and 35 or 30)
     return Label
 end
 
@@ -915,14 +890,14 @@ local function updatePlayerList()
     for _, player in pairs(Players:GetPlayers()) do
         if player ~= LocalPlayer then
             local PlayerButton = Instance.new("TextButton")
-            PlayerButton.Size = UDim2.new(1, -5, 0, isMobile and 50 : 40)
+            PlayerButton.Size = UDim2.new(1, -5, 0, isMobile and 50 or 40)
             PlayerButton.Position = UDim2.new(0, 0, 0, yPos)
             PlayerButton.BackgroundColor3 = currentTheme.button
             PlayerButton.BorderSizePixel = 0
             PlayerButton.Font = Enum.Font.GothamSemibold
             PlayerButton.Text = player.Name
             PlayerButton.TextColor3 = currentTheme.text
-            PlayerButton.TextSize = isMobile and 15 : 14
+            PlayerButton.TextSize = isMobile and 15 or 14
             PlayerButton.AutoButtonColor = false
             PlayerButton.Parent = PlayerScrollFrame
             
@@ -954,33 +929,17 @@ local function updatePlayerList()
                 end
             end)
             
-            yPos = yPos + (isMobile and 55 : 45)
+            yPos = yPos + (isMobile and 55 or 45)
         end
     end
     
     PlayerScrollFrame.CanvasSize = UDim2.new(0, 0, 0, yPos)
 end
 
-local contentFrames = {}
-
-local function createTabContent(tabName)
-    local ContentFrame = Instance.new("Frame")
-    ContentFrame.Name = tabName .. "Content"
-    ContentFrame.Size = UDim2.new(1, 0, 1, 0)
-    ContentFrame.BackgroundTransparency = 1
-    ContentFrame.Visible = tabName == currentTab
-    ContentFrame.Parent = ScrollFrame
-    
-    contentFrames[tabName] = ContentFrame
-    return ContentFrame
-end
+local PlayerSelectButton
 
 local function switchTab(tabName)
     currentTab = tabName
-    
-    for name, frame in pairs(contentFrames) do
-        frame.Visible = name == tabName
-    end
     
     for _, tab in pairs(TabFrame:GetChildren()) do
         if tab:IsA("TextButton") then
@@ -995,9 +954,7 @@ local function switchTab(tabName)
     currentYPosition = 5
     
     for _, child in pairs(ScrollFrame:GetChildren()) do
-        if not child:IsA("Frame") or not child.Name:match("Content") then
-            child:Destroy()
-        end
+        child:Destroy()
     end
     
     if tabName == "Protecao" then
@@ -1030,14 +987,14 @@ local function switchTab(tabName)
         
         PlayerSelectButton = Instance.new("TextButton")
         PlayerSelectButton.Name = "PlayerSelectButton"
-        PlayerSelectButton.Size = UDim2.new(1, -10, 0, isMobile and 65 : 55)
+        PlayerSelectButton.Size = UDim2.new(1, -10, 0, isMobile and 65 or 55)
         PlayerSelectButton.Position = UDim2.new(0, 5, 0, currentYPosition)
         PlayerSelectButton.BackgroundColor3 = currentTheme.secondary
         PlayerSelectButton.BorderSizePixel = 0
         PlayerSelectButton.Font = Enum.Font.GothamSemibold
         PlayerSelectButton.Text = "Selecionar Jogador"
         PlayerSelectButton.TextColor3 = currentTheme.text
-        PlayerSelectButton.TextSize = isMobile and 15 : 15
+        PlayerSelectButton.TextSize = isMobile and 15 or 15
         PlayerSelectButton.AutoButtonColor = false
         PlayerSelectButton.Parent = ScrollFrame
         
@@ -1064,7 +1021,7 @@ local function switchTab(tabName)
             updatePlayerList()
         end)
         
-        currentYPosition = currentYPosition + (isMobile and 75 : 65)
+        currentYPosition = currentYPosition + (isMobile and 75 or 65)
         createSpacer(5)
         createToggleButton("BlackholePlayer", "Blackhole Player", setupBlackholePlayer)
         createSpacer(5)
@@ -1104,6 +1061,31 @@ local function switchTab(tabName)
     ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, currentYPosition + 10)
 end
 
+local function createTab(name, text, order)
+    local Tab = Instance.new("TextButton")
+    Tab.Name = name
+    Tab.Size = UDim2.new(0, isMobile and 105 or 95, 1, -10)
+    Tab.Position = UDim2.new(0, 5, 0, 5)
+    Tab.BackgroundColor3 = name == currentTab and currentTheme.accent or currentTheme.button
+    Tab.BorderSizePixel = 0
+    Tab.Font = Enum.Font.GothamBold
+    Tab.Text = text
+    Tab.TextColor3 = currentTheme.text
+    Tab.TextSize = isMobile and 13 or 14
+    Tab.LayoutOrder = order
+    Tab.Parent = TabFrame
+    
+    local TabCorner = Instance.new("UICorner")
+    TabCorner.CornerRadius = UDim.new(0, 8)
+    TabCorner.Parent = Tab
+    
+    return Tab
+end
+
+local ProtecaoTab = createTab("Protecao", "Protecao", 1)
+local BlackholeTab = createTab("Blackhole", "Blackhole", 2)
+local ExtrasTab = createTab("Extras", "Extras", 3)
+
 ProtecaoTab.MouseButton1Click:Connect(function()
     switchTab("Protecao")
 end)
@@ -1118,14 +1100,14 @@ end)
 
 local function createThemeButton(themeName, displayName, yPos)
     local ThemeButton = Instance.new("TextButton")
-    ThemeButton.Size = UDim2.new(1, -20, 0, isMobile and 45 : 40)
+    ThemeButton.Size = UDim2.new(1, -20, 0, isMobile and 45 or 40)
     ThemeButton.Position = UDim2.new(0, 10, 0, yPos)
     ThemeButton.BackgroundColor3 = themes[themeName].accent
     ThemeButton.BorderSizePixel = 0
     ThemeButton.Font = Enum.Font.GothamBold
     ThemeButton.Text = displayName
     ThemeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    ThemeButton.TextSize = isMobile and 15 : 14
+    ThemeButton.TextSize = isMobile and 15 or 14
     ThemeButton.AutoButtonColor = false
     ThemeButton.Parent = ThemeFrame
     
@@ -1157,22 +1139,22 @@ local function createThemeButton(themeName, displayName, yPos)
 end
 
 createThemeButton("dark", "Escuro", 50)
-createThemeButton("blue", "Azul", isMobile and 105 : 100)
-createThemeButton("purple", "Roxo", isMobile and 160 : 150)
-createThemeButton("green", "Verde", isMobile and 215 : 200)
+createThemeButton("blue", "Azul", isMobile and 105 or 100)
+createThemeButton("purple", "Roxo", isMobile and 160 or 150)
+createThemeButton("green", "Verde", isMobile and 215 or 200)
 
 switchTab("Protecao")
 
 local CloseButton = Instance.new("TextButton")
 CloseButton.Name = "CloseButton"
-CloseButton.Size = UDim2.new(0, isMobile and 45 : 40, 0, isMobile and 45 : 40)
-CloseButton.Position = UDim2.new(1, isMobile and -50 : -45, 0, 5)
+CloseButton.Size = UDim2.new(0, isMobile and 45 or 40, 0, isMobile and 45 or 40)
+CloseButton.Position = UDim2.new(1, isMobile and -50 or -45, 0, 5)
 CloseButton.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
 CloseButton.BorderSizePixel = 0
 CloseButton.Font = Enum.Font.GothamBold
 CloseButton.Text = "X"
 CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-CloseButton.TextSize = isMobile and 22 : 20
+CloseButton.TextSize = isMobile and 22 or 20
 CloseButton.AutoButtonColor = false
 CloseButton.Parent = MainFrame
 
@@ -1232,14 +1214,14 @@ end)
 
 local MinimizeButton = Instance.new("TextButton")
 MinimizeButton.Name = "MinimizeButton"
-MinimizeButton.Size = UDim2.new(0, isMobile and 45 : 40, 0, isMobile and 45 : 40)
-MinimizeButton.Position = UDim2.new(1, isMobile and -100 : -90, 0, 5)
+MinimizeButton.Size = UDim2.new(0, isMobile and 45 or 40, 0, isMobile and 45 or 40)
+MinimizeButton.Position = UDim2.new(1, isMobile and -100 or -90, 0, 5)
 MinimizeButton.BackgroundColor3 = currentTheme.accent
 MinimizeButton.BorderSizePixel = 0
 MinimizeButton.Font = Enum.Font.GothamBold
 MinimizeButton.Text = "-"
 MinimizeButton.TextColor3 = currentTheme.text
-MinimizeButton.TextSize = isMobile and 26 : 24
+MinimizeButton.TextSize = isMobile and 26 or 24
 MinimizeButton.AutoButtonColor = false
 MinimizeButton.Parent = MainFrame
 
@@ -1252,9 +1234,9 @@ local isMinimized = false
 MinimizeButton.MouseEnter:Connect(function()
     TweenService:Create(MinimizeButton, TweenInfo.new(0.2), {
         BackgroundColor3 = Color3.fromRGB(
-            currentTheme.accent.R * 255 + 30,
-            currentTheme.accent.G * 255 + 30,
-            currentTheme.accent.B * 255 + 30
+            math.min(currentTheme.accent.R * 255 + 30, 255),
+            math.min(currentTheme.accent.G * 255 + 30, 255),
+            math.min(currentTheme.accent.B * 255 + 30, 255)
         )
     }):Play()
 end)
